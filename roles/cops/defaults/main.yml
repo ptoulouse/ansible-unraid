@@ -1,0 +1,12 @@
+---
+# Enable or disable the application.
+cops_enabled: false
+
+# COPS Docker container settings.
+cops_container_name: "cops"
+cops_hostname: "cops"
+cops_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/cops.png
+cops_image_version: "latest"
+cops_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+cops_group_id: "100"
+cops_user_id: "99"

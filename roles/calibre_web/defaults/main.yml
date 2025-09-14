@@ -1,0 +1,12 @@
+---
+# Enable or disable the application.
+calibre_web_enabled: false
+
+# Calibre-Web Docker container settings.
+calibre_web_container_name: "calibre-web"
+calibre_web_hostname: "calibre-web"
+calibre_web_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/calibreweb.png
+calibre_web_image_version: "latest"
+calibre_web_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+calibre_web_group_id: "100"
+calibre_web_user_id: "99"

@@ -1,0 +1,64 @@
+---
+- name: Start COPS
+  when: cops_enabled is true
+  block:
+    - name: Create COPS directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ docker_data_path }}/{{ cops_container_name }}"
+        - path: "{{ docker_data_path }}/{{ cops_container_name }}/config"
+        - path: "{{ docker_data_path }}/{{ cops_container_name }}/config/config"
+          owner: "{{ cops_user_id }}"
+          group: "{{ cops_group_id }}"
+
+    - name: Create COPS configuration file
+      ansible.builtin.template:
+        src: "local.php.j2"
+        dest: "{{ docker_data_path }}/{{ cops_container_name }}/config/config/local.php"
+        mode: "0644"
+      register: cops_config_file
+
+    - name: Create COPS Docker Container
+      community.docker.docker_container:
+        name: "{{ cops_container_name }}"
+        image: "lscr.io/linuxserver/cops:{{ cops_image_version }}"
+        recreate: "{{ cops_config_file is changed }}"
+        pull: true
+        restart_policy: "{{ cops_restart_policy }}"
+        networks:
+          - name: "{{ mail_relay_network }}"
+          - name: traefik
+        volumes:
+          - "{{ books_path }}:/books"
+          - "{{ docker_data_path }}/{{ cops_container_name }}/config:/config"
+        env:
+          PGID: "{{ cops_group_id }}"
+          PUID: "{{ cops_user_id }}"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "E-Books"
+          net.unraid.docker.icon: "{{ cops_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ cops_hostname }}.{{ domain_name }}"
+          traefik.enable: "true"
+          traefik.http.routers.cops.entrypoints: "https"
+          traefik.http.routers.cops.middlewares: "auth-chain@file"
+          traefik.http.routers.cops.rule: "Host(`{{ cops_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.cops.service: "cops"
+          traefik.http.services.cops.loadbalancer.server.port: "80"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop COPS
+  when: cops_enabled is false
+  block:
+    - name: Stop COPS
+      community.docker.docker_container:
+        name: "{{ cops_container_name }}"
+        state: absent
