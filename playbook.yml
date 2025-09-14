@@ -9,17 +9,26 @@
       vars:
         ansible_python_interpreter: "/usr/bin/python3" # Use system Python for initial setup
 
+    # Base Services
+    - role: mail_relay
+      tags: mail_relay
+
+    # Monitoring services.
     - role: dozzle
       tags: dozzle
-
     - role: glances
       tags: glances
-
     - role: healthchecks
       tags: healthchecks
-
     - role: scrutiny
       tags: scrutiny
 
+    # E-Books services.
+    - role: calibre_web
+      tags: calibre_web
+    - role: cops
+      tags: cops
+
+    # Other services.
     - role: freshrss
       tags: freshrss

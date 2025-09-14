@@ -1,0 +1,19 @@
+---
+# Enable or disable the application.
+mail_relay_enabled: false
+
+# Mail Relay Docker container settings.
+mail_relay_container_name: "mail-relay"
+mail_relay_hostname: "mail-relay"
+mail_relay_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/mail-relay2.png
+mail_relay_image_version: "latest"
+mail_relay_network: "mail-relay"
+mail_relay_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+mail_relay_group_id: "100"
+mail_relay_user_id: "99"
+
+# SMTP server settings.
+mail_relay_smtp_server: "smtp.gmail.com"
+mail_relay_smtp_port: "587"
+mail_relay_smtp_username: ""
+mail_relay_smtp_password: ""

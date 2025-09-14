@@ -1,0 +1,53 @@
+---
+- name: Start Mail Relay
+  when: mail_relay_enabled is true
+  block:
+    - name: Check that SMTP username and password are defined.
+      ansible.builtin.assert:
+        that:
+          - mail_relay_smtp_username | length > 0
+          - mail_relay_smtp_password | length > 0
+        fail_msg: "mail_relay_smtp_username and/or mail_relay_smtp_password is not defined."
+
+    - name: Check that server_name and domain_name are defined.
+      ansible.builtin.assert:
+        that:
+          - domain_name is defined and domain_name | length > 0
+          - server_name is defined and server_name | length > 0
+        fail_msg: "server_name and/or domain_name is not defined."
+
+    - name: Create Mail Relay Docker network
+      community.docker.docker_network:
+        name: "{{ mail_relay_network }}"
+        state: present
+
+    - name: Create Mail Relay Docker Container
+      community.docker.docker_container:
+        name: "{{ mail_relay_container_name }}"
+        image: "juanluisbaptiste/postfix:{{ mail_relay_image_version }}"
+        pull: true
+        restart_policy: "{{ mail_relay_restart_policy }}"
+        networks:
+          - name: "{{ mail_relay_network }}"
+        env:
+          SMTP_SERVER: "{{ mail_relay_smtp_server }}"
+          SMTP_PORT: "{{ mail_relay_smtp_port }}"
+          SMTP_USERNAME: "{{ mail_relay_smtp_username }}"
+          SMTP_PASSWORD: "{{ mail_relay_smtp_password }}"
+          SERVER_HOSTNAME: "{{ server_name }}.{{ domain_name }}"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Base Services"
+          net.unraid.docker.icon: "{{ mail_relay_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Mail Relay
+  when: mail_relay_enabled is false
+  block:
+    - name: Stop Mail Relay
+      community.docker.docker_container:
+        name: "{{ mail_relay_container_name }}"
+        state: absent

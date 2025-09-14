@@ -45,6 +45,7 @@ dozzle_enabled: true
 freshrss_enabled: true
 glances_enabled: true
 healthchecks_enabled: true
+mail_relay_enabled: true
 scrutiny_enabled: true
 
 # Mail Relay settings.
