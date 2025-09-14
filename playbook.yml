@@ -10,6 +10,8 @@
         ansible_python_interpreter: "/usr/bin/python3" # Use system Python for initial setup
 
     # Base Services
+    - role: cloudflare_ddns
+      tags: cloudflare_ddns
     - role: mail_relay
       tags: mail_relay
 

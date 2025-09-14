@@ -42,6 +42,7 @@ docker_data_path: "/mnt/user/appdata"
 
 # Enable or disable applications.
 calibre_web_enabled: true
+cloudflare_ddns_enabled: true
 cops_enabled: true
 dozzle_enabled: true
 freshrss_enabled: true
@@ -51,6 +52,9 @@ mail_relay_enabled: true
 plex_enabled: true
 scrutiny_enabled: true
 tautulli_enabled: true
+
+# Cloudflare DDNS settings.
+cloudflare_ddns_api_token: "{{ vault_cloudflare_api_token }}"
 
 # Mail Relay settings.
 mail_relay_smtp_server: "smtp.gmail.com"

@@ -1,0 +1,37 @@
+---
+- name: Start cloudflare DDNS
+  when: cloudflare_ddns_enabled is true
+  block:
+    - name: Check that SMTP username and password are defined.
+      ansible.builtin.assert:
+        that:
+          - cloudflare_ddns_api_token | length > 0
+        fail_msg: "cloudflare_ddns_api_token is not defined."
+
+    - name: Create cloudflare DDNS Docker Container
+      community.docker.docker_container:
+        name: "{{ cloudflare_ddns_container_name }}"
+        image: "favonia/cloudflare-ddns:{{ cloudflare_ddns_image_version }}"
+        pull: true
+        restart_policy: "{{ cloudflare_ddns_restart_policy }}"
+        env:
+          CF_API_TOKEN: "{{ cloudflare_ddns_api_token }}"
+          DOMAINS: "{{ domain_name }}"
+          IP6_PROVIDER: none
+          PROXIED: "true"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Base Services"
+          net.unraid.docker.icon: "{{ cloudflare_ddns_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop cloudflare DDNS
+  when: cloudflare_ddns_enabled is false
+  block:
+    - name: Stop cloudflare DDNS
+      community.docker.docker_container:
+        name: "{{ cloudflare_ddns_container_name }}"
+        state: absent
