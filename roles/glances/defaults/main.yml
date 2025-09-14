@@ -1,6 +1,6 @@
 ---
 # Enable or disable the application.
-glances_enabled: true
+glances_enabled: false
 
 # Glances Docker container settings.
 glances_container_name: "glances"

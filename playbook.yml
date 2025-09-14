@@ -15,5 +15,8 @@
     - role: glances
       tags: glances
 
+    - role: healthchecks
+      tags: healthchecks
+
     - role: freshrss
       tags: freshrss

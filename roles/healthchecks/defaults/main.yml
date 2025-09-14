@@ -1,0 +1,12 @@
+---
+# Enable or disable the application.
+healthchecks_enabled: false
+
+# Docker container settings.
+healthchecks_container_name: "healthchecks"
+healthchecks_hostname: "healthchecks"
+healthchecks_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/healthchecks.png
+healthchecks_image_version: "latest"
+healthchecks_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+healthchecks_group_id: "100"
+healthchecks_user_id: "99"

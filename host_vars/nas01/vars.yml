@@ -40,3 +40,7 @@ docker_data_path: "/mnt/user/appdata"
 dozzle_enabled: true
 freshrss_enabled: true
 glances_enabled: true
+healthchecks_enabled: true
+
+# Healthchecks settings.
+healthchecks_secret_key: "{{ vault_healthchecks_secret_key }}"

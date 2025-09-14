@@ -1,0 +1,68 @@
+---
+- name: Start Healthchecks
+  when: healthchecks_enabled is true
+  block:
+    - name: Create Healthchecks directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ docker_data_path }}/{{ healthchecks_container_name }}"
+        - path: "{{ docker_data_path }}/{{ healthchecks_container_name }}/config"
+          owner: "{{ healthchecks_user_id }}"
+          group: "{{ healthchecks_group_id }}"
+
+    - name: Create Healthchecks Docker Container
+      community.docker.docker_container:
+        name: "{{ healthchecks_container_name }}"
+        image: "lscr.io/linuxserver/healthchecks:{{ healthchecks_image_version }}"
+        pull: true
+        restart_policy: "{{ healthchecks_restart_policy }}"
+        networks:
+          - name: mail_relay
+          - name: traefik
+        volumes:
+          - "{{ docker_data_path }}/{{ healthchecks_container_name }}/config:/config"
+        env:
+          DEFAULT_FROM_EMAIL: "{{ notification_from_address }}"
+          EMAIL_HOST: mail-relay
+          EMAIL_HOST_PASSWORD: ""
+          EMAIL_HOST_USER: ""
+          EMAIL_PORT: 25
+          EMAIL_USE_TLS: "False"
+          PGID: "{{ healthchecks_group_id }}"
+          PUID: "{{ healthchecks_user_id }}"
+          REGENERATE_SETTINGS: "True"
+          REGISTRATION_OPEN: "False"
+          REMOTE_USER_HEADER: HTTP_REMOTE_EMAIL
+          SECRET_KEY: "{{ healthchecks_secret_key }}"
+          SITE_ROOT: "https://{{ healthchecks_hostname }}.{{ domain_name }}"
+          SITE_NAME: "Homelab Healthchecks"
+          SUPERUSER_EMAIL: admin@{{ domeain_name }}
+          SUPERUSER_PASSWORD: "{{ admin_password }}"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Monitoring"
+          net.unraid.docker.icon: "{{ healthchecks_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: "bash"
+          net.unraid.docker.webui: "https://{{ healthchecks_hostname }}.{{ domain_name }}"
+          traefik.enable: "true"
+          traefik.http.routers.healthchecks.entrypoints: "https"
+          traefik.http.routers.healthchecks.middlewares: "auth-chain@file"
+          traefik.http.routers.healthchecks.rule: "Host(`{{ healthchecks_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.healthchecks.service: "healthchecks"
+          traefik.http.services.healthchecks.loadbalancer.server.port: "8000"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Healthchecks
+  when: healthchecks_enabled is false
+  block:
+    - name: Stop Healthchecks
+      community.docker.docker_container:
+        name: "{{ healthchecks_container_name }}"
+        state: absent
