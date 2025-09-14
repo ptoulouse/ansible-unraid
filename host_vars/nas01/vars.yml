@@ -16,8 +16,11 @@ timezone: "America/Montreal"
 # Default initial admin password for services.
 admin_password: "{{ vault_admin_password }}"
 
-# Email address for notifications.
-notification_from_address: "{{ vault_notification_from_address }}"
+# Sender email address for notifications email.
+sender_email: "{{ vault_sender_email }}"
+
+# Shares paths.
+books_path: "/mnt/user/media/libraries/books"
 
 # Path where Python virtual environment will be created.
 python_venv_path: /mnt/user/appdata/python_venv
@@ -36,11 +39,19 @@ docker_restart_policy: "always"
 docker_data_path: "/mnt/user/appdata"
 
 # Enable or disable applications.
+calibre_web_enabled: true
+cops_enabled: true
 dozzle_enabled: true
 freshrss_enabled: true
 glances_enabled: true
 healthchecks_enabled: true
 scrutiny_enabled: true
+
+# Mail Relay settings.
+mail_relay_smtp_server: "smtp.gmail.com"
+mail_relay_smtp_port: "587"
+mail_relay_smtp_username: "{{ vault_mail_relay_smtp_username }}"
+mail_relay_smtp_password: "{{ vault_mail_relay_smtp_password }}"
 
 # Healthchecks settings.
 healthchecks_secret_key: "{{ vault_healthchecks_secret_key }}"
