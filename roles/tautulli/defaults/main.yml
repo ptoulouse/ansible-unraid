@@ -1,0 +1,12 @@
+---
+# Enable or disable the application.
+tautulli_enabled: false
+
+# Tautulli Docker container settings.
+tautulli_container_name: "tautulli"
+tautulli_hostname: "tautulli"
+tautulli_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/tautulli.png
+tautulli_image_version: "latest"
+tautulli_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+tautulli_group_id: "100"
+tautulli_user_id: "99"

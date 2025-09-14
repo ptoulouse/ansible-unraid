@@ -1,0 +1,12 @@
+---
+# Enable or disable the application.
+plex_enabled: false
+
+# Plex Docker container settings.
+plex_container_name: "plex"
+plex_hostname: "plex"
+plex_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/plex.png
+plex_image_version: "latest"
+plex_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+plex_group_id: "100"
+plex_user_id: "99"

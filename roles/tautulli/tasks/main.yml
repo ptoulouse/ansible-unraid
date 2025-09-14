@@ -1,0 +1,54 @@
+---
+- name: Start Tautulli
+  when: tautulli_enabled is true
+  block:
+    - name: Create Tautulli directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ docker_data_path }}/{{ tautulli_container_name }}"
+        - path: "{{ docker_data_path }}/{{ tautulli_container_name }}/config"
+          owner: "{{ tautulli_user_id }}"
+          group: "{{ tautulli_group_id }}"
+
+    - name: Create Tautulli Docker Container
+      community.docker.docker_container:
+        name: "{{ tautulli_container_name }}"
+        image: "lscr.io/linuxserver/tautulli:{{ tautulli_image_version }}"
+        pull: true
+        restart_policy: "{{ tautulli_restart_policy }}"
+        networks:
+          - name: traefik
+        volumes:
+          - "{{ docker_data_path }}/{{ plex_container_name }}/config/Library/Application Support/Plex Media Server/Logs:/logs:ro"
+          - "{{ docker_data_path }}/{{ tautulli_container_name }}/config:/config"
+        env:
+          PGID: "{{ tautulli_group_id }}"
+          PUID: "{{ tautulli_user_id }}"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Plex"
+          net.unraid.docker.icon: "{{ tautulli_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ tautulli_hostname }}.{{ domain_name }}"
+          traefik.enable: "true"
+          traefik.http.routers.tautulli.entrypoints: "https"
+          traefik.http.routers.tautulli.middlewares: "auth-chain@file"
+          traefik.http.routers.tautulli.rule: "Host(`{{ tautulli_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.tautulli.service: "tautulli"
+          traefik.http.services.tautulli.loadbalancer.server.port: "8181"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Tautulli
+  when: tautulli_enabled is false
+  block:
+    - name: Stop Tautulli
+      community.docker.docker_container:
+        name: "{{ tautulli_container_name }}"
+        state: absent

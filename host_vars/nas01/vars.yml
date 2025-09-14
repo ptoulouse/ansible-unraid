@@ -21,6 +21,8 @@ sender_email: "{{ vault_sender_email }}"
 
 # Shares paths.
 books_path: "/mnt/user/media/libraries/books"
+media_path: "/mnt/user/media"
+photos_path: "/mnt/user/photos"
 
 # Path where Python virtual environment will be created.
 python_venv_path: /mnt/user/appdata/python_venv
@@ -46,7 +48,9 @@ freshrss_enabled: true
 glances_enabled: true
 healthchecks_enabled: true
 mail_relay_enabled: true
+plex_enabled: true
 scrutiny_enabled: true
+tautulli_enabled: true
 
 # Mail Relay settings.
 mail_relay_smtp_server: "smtp.gmail.com"

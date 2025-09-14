@@ -1,0 +1,56 @@
+---
+- name: Start Plex
+  when: plex_enabled is true
+  block:
+    - name: Create Plex directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ docker_data_path }}/{{ plex_container_name }}"
+        - path: "{{ docker_data_path }}/{{ plex_container_name }}/config"
+          owner: "{{ plex_user_id }}"
+          group: "{{ plex_group_id }}"
+
+    - name: Create Plex Docker Container
+      community.docker.docker_container:
+        name: "{{ plex_container_name }}"
+        image: "lscr.io/linuxserver/plex:{{ plex_image_version }}"
+        pull: true
+        restart_policy: "{{ plex_restart_policy }}"
+        network_mode: "host"
+        volumes:
+          - "{{ docker_data_path }}/{{ plex_container_name }}/config:/config"
+          - "{{ media_path }}:{{ media_path }}:rslave"
+          - "{{ photos_path }}:/photos"
+          - "/tmp:/transcode"
+        env:
+          PGID: "{{ plex_group_id }}"
+          PUID: "{{ plex_user_id }}"
+          VERSION: "docker"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Plex"
+          net.unraid.docker.icon: "{{ plex_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ plex_hostname }}.{{ domain_name }}"
+          traefik.enable: "true"
+          traefik.http.routers.plex.entrypoints: "https"
+          traefik.http.routers.plex.middlewares: "auth-chain@file"
+          traefik.http.routers.plex.rule: "Host(`{{ plex_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.plex.service: "plex"
+          traefik.http.services.plex.loadbalancer.server.port: "32400"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Plex
+  when: plex_enabled is false
+  block:
+    - name: Stop Plex
+      community.docker.docker_container:
+        name: "{{ plex_container_name }}"
+        state: absent

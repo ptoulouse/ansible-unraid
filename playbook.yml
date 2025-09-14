@@ -29,6 +29,12 @@
     - role: cops
       tags: cops
 
+    # Plex services.
+    - role: plex
+      tags: plex
+    - role: tautulli
+      tags: tautulli
+
     # Other services.
     - role: freshrss
       tags: freshrss

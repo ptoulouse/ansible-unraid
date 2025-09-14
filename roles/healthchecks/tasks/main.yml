@@ -28,7 +28,7 @@
           - "{{ docker_data_path }}/{{ healthchecks_container_name }}/config:/config"
         env:
           DEFAULT_FROM_EMAIL: "{{ sender_email }}"
-          EMAIL_HOST: "{{ mail_relay_container_name}}"
+          EMAIL_HOST: "{{ mail_relay_container_name }}"
           EMAIL_HOST_PASSWORD: ""
           EMAIL_HOST_USER: ""
           EMAIL_PORT: "25"
