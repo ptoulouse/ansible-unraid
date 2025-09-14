@@ -1,0 +1,15 @@
+---
+# Enable or disable the application.
+lldap_enabled: false
+
+# Calibre-Web Docker container settings.
+lldap_admin_password: ""
+lldap_base_dn: "dc={{ domain_name.split('.')[0] }},dc={{ domain_name.split('.')[1] }}"
+lldap_container_name: "lldap"
+lldap_hostname: "lldap"
+lldap_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/ldap.png
+lldap_image_version: "stable"
+lldap_jwt_secret: ""
+lldap_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+lldap_group_id: "100"
+lldap_user_id: "99"

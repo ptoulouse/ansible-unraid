@@ -14,6 +14,8 @@
       tags: cloudflare_ddns
     - role: mail_relay
       tags: mail_relay
+    - role: lldap
+      tags: lldap
 
     # Monitoring services.
     - role: dozzle

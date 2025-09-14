@@ -48,6 +48,7 @@ dozzle_enabled: true
 freshrss_enabled: true
 glances_enabled: true
 healthchecks_enabled: true
+lldap_enabled: true
 mail_relay_enabled: true
 plex_enabled: true
 scrutiny_enabled: true
@@ -61,6 +62,10 @@ mail_relay_smtp_server: "smtp.gmail.com"
 mail_relay_smtp_port: "587"
 mail_relay_smtp_username: "{{ vault_mail_relay_smtp_username }}"
 mail_relay_smtp_password: "{{ vault_mail_relay_smtp_password }}"
+
+# LLDAP settings.
+lldap_admin_password: "{{ vault_lldap_admin_password }}"
+lldap_jwt_secret: "{{ vault_lldap_jwt_secret }}"
 
 # Healthchecks settings.
 healthchecks_secret_key: "{{ vault_healthchecks_secret_key }}"

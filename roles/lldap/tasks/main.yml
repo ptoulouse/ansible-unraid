@@ -1,0 +1,69 @@
+---
+- name: Start lldap
+  when: lldap_enabled is true
+  block:
+    - name: Check that lldap_admin_password is defined.
+      ansible.builtin.assert:
+        that:
+          - lldap_admin_password | length > 0
+        fail_msg: "lldap_admin_password is not defined."
+
+    - name: Check that lldap_jwt_secret is defined.
+      ansible.builtin.assert:
+        that:
+          - lldap_jwt_secret | length > 0
+        fail_msg: "lldap_jwt_secret is not defined."
+
+    - name: Create lldap directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ docker_data_path }}/{{ lldap_container_name }}"
+        - path: "{{ docker_data_path }}/{{ lldap_container_name }}/data"
+          owner: "{{ lldap_user_id }}"
+          group: "{{ lldap_group_id }}"
+
+    - name: Create lldap Docker Container
+      community.docker.docker_container:
+        name: "{{ lldap_container_name }}"
+        image: "lldap/lldap:{{ lldap_image_version }}"
+        pull: true
+        restart_policy: "{{ lldap_restart_policy }}"
+        networks:
+          - name: traefik
+        volumes:
+          - "{{ docker_data_path }}/{{ lldap_container_name }}/data:/data"
+        env:
+          GID: "{{ lldap_group_id }}"
+          UID: "{{ lldap_user_id }}"
+          TZ: "{{ timezone }}"
+          LLDAP_JWT_SECRET: "{{ lldap_jwt_secret }}"
+          LLDAP_LDAP_BASE_DN: "{{ lldap_base_dn }}"
+          LLDAP_LDAP_USER_PASS: "{{ lldap_admin_password }}"
+
+        labels:
+          folder.view2: "Base Services"
+          net.unraid.docker.icon: "{{ lldap_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ lldap_hostname }}.{{ domain_name }}"
+          traefik.enable: "true"
+          traefik.http.routers.lldap.entrypoints: "https"
+          traefik.http.routers.lldap.middlewares: "auth-chain@file"
+          traefik.http.routers.lldap.rule: "Host(`{{ lldap_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.lldap.service: "lldap"
+          traefik.http.services.lldap.loadbalancer.server.port: "17170"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop lldap
+  when: lldap_enabled is false
+  block:
+    - name: Stop lldap
+      community.docker.docker_container:
+        name: "{{ lldap_container_name }}"
+        state: absent
