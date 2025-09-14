@@ -1,0 +1,37 @@
+---
+- name: Start Dozzle
+  when: dozzle_enabled is true
+  block:
+    - name: Create Dozzle Docker Container
+      community.docker.docker_container:
+        name: "{{ dozzle_container_name }}"
+        image: "amir20/dozzle:{{ glances_image_version }}"
+        pull: true
+        restart_policy: "{{ dozzle_restart_policy }}"
+        networks:
+          - name: traefik
+        volumes:
+          - /etc/localtime:/etc/localtime:ro
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+        labels:
+          folder.view2: "Monitoring"
+          net.unraid.docker.icon: "{{ dozzle_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.webui: "https://{{ dozzle_hostname }}.{{ domain_name }}"
+          traefik.enable: "true"
+          traefik.http.routers.dozzle.entrypoints: "https"
+          traefik.http.routers.dozzle.middlewares: "auth-chain@file"
+          traefik.http.routers.dozzle.rule: "Host(`{{ dozzle_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.dozzle.service: "dozzle"
+          traefik.http.services.dozzle.loadbalancer.server.port: "8080"
+        privileged: true
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Dozzle
+  when: dozzle_enabled is false
+  block:
+    - name: Stop Dozzle
+      community.docker.docker_container:
+        name: "{{ dozzle_container_name }}"
+        state: absent

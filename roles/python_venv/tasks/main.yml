@@ -1,0 +1,26 @@
+---
+# Assert that python_venv_path is defined
+- name: Assert that python_venv_path is defined
+  ansible.builtin.assert:
+    that:
+      - python_venv_path | length > 0
+    fail_msg: "Required variable 'python_venv_path' is not defined."
+
+# Create Python virtual environment
+- name: Create Python virtual environment
+  ansible.builtin.command:
+    cmd: /usr/bin/python3 -m venv "{{ python_venv_path }}"
+  args:
+    creates: venv/bin/activate # Prevents re-creation if already exists
+
+# # Set Python interpreter for subsequent tasks
+# - name: Set Python interpreter to virtual environment
+#   ansible.builtin.set_fact:
+#     ansible_python_interpreter: "{{ python_venv_path }}/bin/python3"
+
+# Install required Python packages in the virtual environment
+- name: Install required Python packages
+  ansible.builtin.pip:
+    name: "{{ python_venv_packages }}"
+    virtualenv: "{{ python_venv_path }}"
+  when: python_venv_packages is defined and python_venv_packages | length > 0

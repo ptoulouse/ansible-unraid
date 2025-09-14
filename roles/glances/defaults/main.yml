@@ -1,0 +1,10 @@
+---
+# Enable or disable the application.
+glances_enabled: true
+
+# Glances Docker container settings.
+glances_container_name: "glances"
+glances_hostname: "glances"
+glances_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/glances.png
+glances_image_version: "latest"
+glances_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"

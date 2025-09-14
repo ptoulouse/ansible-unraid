@@ -1,0 +1,12 @@
+---
+# Enable or disable the application.
+freshrss_enabled: false
+
+# FreshRSS Docker container settings.
+freshrss_container_name: "freshrss"
+freshrss_hostname: "freshrss"
+freshrss_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/freshrss.png
+freshrss_image_version: "latest"
+freshrss_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+freshrss_group_id: "100"
+freshrss_user_id: "99"
