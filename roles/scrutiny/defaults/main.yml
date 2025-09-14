@@ -1,0 +1,14 @@
+---
+# Enable or disable the application.
+scrutiny_enabled: false
+
+# Docker container settings.
+scrutiny_container_name: "scrutiny"
+scrutiny_devices: []
+scrutiny_hostname: "scrutiny"
+scrutiny_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/scrutiny.png
+scrutiny_image_version: "master-omnibus"
+scrutiny_port: "8080"
+scrutiny_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+scrutiny_group_id: "100"
+scrutiny_user_id: "99"

@@ -31,7 +31,7 @@
           EMAIL_HOST: mail-relay
           EMAIL_HOST_PASSWORD: ""
           EMAIL_HOST_USER: ""
-          EMAIL_PORT: 25
+          EMAIL_PORT: "25"
           EMAIL_USE_TLS: "False"
           PGID: "{{ healthchecks_group_id }}"
           PUID: "{{ healthchecks_user_id }}"
@@ -41,7 +41,7 @@
           SECRET_KEY: "{{ healthchecks_secret_key }}"
           SITE_ROOT: "https://{{ healthchecks_hostname }}.{{ domain_name }}"
           SITE_NAME: "Homelab Healthchecks"
-          SUPERUSER_EMAIL: admin@{{ domeain_name }}
+          SUPERUSER_EMAIL: admin@{{ domain_name }}
           SUPERUSER_PASSWORD: "{{ admin_password }}"
           TZ: "{{ timezone }}"
         labels:

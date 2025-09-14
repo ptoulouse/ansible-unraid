@@ -18,5 +18,8 @@
     - role: healthchecks
       tags: healthchecks
 
+    - role: scrutiny
+      tags: scrutiny
+
     - role: freshrss
       tags: freshrss

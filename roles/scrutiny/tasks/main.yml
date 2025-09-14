@@ -1,0 +1,60 @@
+---
+- name: Start Scrutiny
+  when: scrutiny_enabled is true
+  block:
+    - name: Check that there are disks to monitor.
+      ansible.builtin.assert:
+        that:
+          - scrutiny_devices | length > 0
+        fail_msg: "No disks have been configured to monitor. Please set the 'scrutiny_devices' variable."
+
+    - name: Create Scrutiny directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ docker_data_path }}/{{ scrutiny_container_name }}"
+        - path: "{{ docker_data_path }}/{{ scrutiny_container_name }}/config"
+        - path: "{{ docker_data_path }}/{{ scrutiny_container_name }}/influxdb"
+
+    - name: Create Scrutiny Docker Container
+      community.docker.docker_container:
+        name: "{{ scrutiny_container_name }}"
+        image: "ghcr.io/analogj/scrutiny:{{ scrutiny_image_version }}"
+        pull: true
+        restart_policy: "{{ scrutiny_restart_policy }}"
+        published_ports:
+          - "{{ scrutiny_port }}:8080"
+        networks:
+          - name: traefik
+        volumes:
+          - /run/udev:/run/udev:ro
+          - "{{ docker_data_path }}/{{ scrutiny_container_name }}/config:/config"
+          - "{{ docker_data_path }}/{{ scrutiny_container_name }}/influxdb:/opt/scrutiny/influxdb"
+        labels:
+          folder.view2: "Monitoring"
+          net.unraid.docker.icon: "{{ scrutiny_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: "bash"
+          net.unraid.docker.webui: "https://{{ scrutiny_hostname }}.{{ domain_name }}"
+          traefik.enable: "true"
+          traefik.http.routers.scrutiny.entrypoints: "https"
+          traefik.http.routers.scrutiny.middlewares: "auth-chain@file"
+          traefik.http.routers.scrutiny.rule: "Host(`{{ scrutiny_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.scrutiny.service: "scrutiny"
+          traefik.http.services.scrutiny.loadbalancer.server.port: "8080"
+        capabilities:
+          - SYS_RAWIO
+          - SYS_ADMIN
+        devices: "{{ scrutiny_devices }}"
+
+- name: Stop Scrutiny
+  when: scrutiny_enabled is false
+  block:
+    - name: Stop Scrutiny
+      community.docker.docker_container:
+        name: "{{ scrutiny_container_name }}"
+        state: absent
