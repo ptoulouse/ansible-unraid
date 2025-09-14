@@ -22,7 +22,7 @@
         pull: true
         restart_policy: "{{ healthchecks_restart_policy }}"
         networks:
-          - name: mail_relay
+          - name: mail-relay
           - name: traefik
         volumes:
           - "{{ docker_data_path }}/{{ healthchecks_container_name }}/config:/config"
