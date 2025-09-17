@@ -16,6 +16,8 @@
       tags: mail_relay
     - role: lldap
       tags: lldap
+    - role: authelia
+      tags: authelia
 
     # Monitoring services.
     - role: dozzle

@@ -2,17 +2,15 @@
 - name: Start lldap
   when: lldap_enabled is true
   block:
-    - name: Check that lldap_admin_password is defined.
+    - name: Check that required variables are set.
       ansible.builtin.assert:
         that:
-          - lldap_admin_password | length > 0
-        fail_msg: "lldap_admin_password is not defined."
-
-    - name: Check that lldap_jwt_secret is defined.
-      ansible.builtin.assert:
-        that:
-          - lldap_jwt_secret | length > 0
-        fail_msg: "lldap_jwt_secret is not defined."
+          - "{{ item | length > 0 }}"
+        fail_msg: "{{ item }} is not defined."
+      loop:
+        - lldap_admin_password
+        - lldap_jwt_secret
+        - domain_name
 
     - name: Create lldap directories
       ansible.builtin.file:
@@ -44,7 +42,6 @@
           LLDAP_JWT_SECRET: "{{ lldap_jwt_secret }}"
           LLDAP_LDAP_BASE_DN: "{{ lldap_base_dn }}"
           LLDAP_LDAP_USER_PASS: "{{ lldap_admin_password }}"
-
         labels:
           folder.view2: "Base Services"
           net.unraid.docker.icon: "{{ lldap_icon_url }}"

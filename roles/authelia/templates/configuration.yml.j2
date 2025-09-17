@@ -1,0 +1,214 @@
+---
+###############################################################################
+#                           Authelia Configuration                            #
+###############################################################################
+
+# The theme to display: light, dark, grey, auto.
+theme: light
+
+# Default redirection URL
+# default_redirection_url: https://home.example.com/
+
+#
+# Server Configuration
+#
+server:
+  address: tcp://:9091
+
+#
+# Log Configuration
+#
+log:
+  # Level of verbosity for logs: info, debug, trace.
+  level: info
+
+#
+# TOTP Configuration
+#
+totp:
+  issuer: "{{ domain_name }}"
+
+#
+# Identity Validation Configuration
+#
+identity_validation:
+  reset_password:
+    jwt_secret: "{{ authelia_identity_jwt_secret }}"
+
+#
+# NTP Configuration
+#
+# ntp:
+#  disable_failure: false
+
+#
+# Authentication Backend Provider Configuration
+#
+authentication_backend:
+  password_reset:
+    # Disable both the HTML element and the API for reset password functionality.
+    disable: true
+
+  ## The amount of time to wait before we refresh data from the authentication backend.
+  refresh_interval: 1m
+
+  #
+  # LDAP (Authentication Provider)
+  #
+  ldap:
+    address: "ldap://{{ lldap_container_name }}:3890"
+    tls:
+      skip_verify: true
+    base_dn: "{{ lldap_base_dn }}"
+    additional_users_dn: ou=people
+    users_filter: "(&({username_attribute}={input})(objectClass=person))"
+    additional_groups_dn: ou=groups
+    groups_filter: "(member={dn})"
+    user: "uid=readonly,ou=people,{{ lldap_base_dn }}"
+    password: "{{ lldap_readonly_password }}"
+    attributes:
+      username: uid
+      display_name: displayName
+      mail: mail
+      group_name: cn
+
+#
+# Password Policy Configuration.
+#
+password_policy:
+  zxcvbn:
+    enabled: false
+    min_score: 3
+
+# Definitions
+definitions:
+  network:
+    internal:
+      - '192.168.0.0/16'
+      - '172.16.0.0/12'
+
+#
+# Access Control Configuration
+#
+access_control:
+  default_policy: deny
+
+  rules:
+    {% for rule in authelia_access_control_rules %}
+    - domain:
+        {% for domain in rule.domain %}
+        - '{{ domain }}'
+        {% endfor %}
+      {% if rule.resources is defined %}
+      resources:
+        {% for resource in rule.resources %}
+        - '{{ resource }}'
+        {% endfor %}
+      {% endif %}
+      {% if rule.subject is defined %}
+      subject:
+        {% for subject in rule.subject %}
+        - '{{ subject }}'
+        {% endfor %}
+      {% endif %}
+      {% if rule.networks is defined %}
+      networks:
+        {% for network in rule.networks %}
+        - '{{ network }}'
+        {% endfor %}
+      {% endif %}
+      policy: {{ rule.policy }}
+    {% endfor %}
+
+#
+# Session Provider Configuration
+#
+session:
+  # The time before the cookie expires and the session is destroyed if remember me IS NOT selected.
+  expiration: 1h
+
+  ## The inactivity time before the session is reset.
+  inactivity: 15m
+
+  ## The time before the cookie expires and the session is destroyed if remember me IS selected.
+  ## Value of -1 disables remember me.
+  remember_me: 1M
+
+  cookies:
+    - domain: "{{ domain_name }}"
+      authelia_url: "https://{{ authelia_hostname }}.{{ domain_name }}"
+
+#
+# Storage Provider Configuration
+#
+storage:
+  encryption_key: "{{ authelia_storage_encryption_key }}"
+  #
+  # Local (Storage Provider)
+  #
+  local:
+    path: /config/db.sqlite3
+
+#
+# Notification Provider
+#
+## Notifications are sent to users when they require a password reset, a Webauthn registration or a TOTP registration.
+## The available providers are: filesystem, smtp. You must use only one of these providers.
+notifier:
+  smtp:
+    address: smtp://{{ mail_relay_hostname }}:25
+    sender: "Authelia <{{ sender_email }}>"
+    disable_require_tls: true
+
+{% if authelia_oidc_clients | length > 0 %}
+#
+# Identity Providers
+#
+identity_providers:
+  oidc:
+    hmac_secret: "{{ authelia_oidc_hmac_secret }}"
+    jwks:
+      - key: |
+          {{ authelia_identity_providers_oidc_jwks_key | indent(width=10) }}
+    clients:
+      {% for client in authelia_oidc_clients %}
+      - client_id: '{{ client.client_id }}'
+        client_name: '{{ client.client_name }}'
+        client_secret: '{{ client.client_secret }}'
+        public: {{ client.public | default("false") }}
+        {% if client.redirect_uris is defined %}
+        redirect_uris:
+          {% for uri in client.redirect_uris %}
+          - '{{ uri }}'
+          {% endfor %}
+        {% endif %}
+        {% if client.scopes is defined %}
+        scopes:
+          {% for scope in client.scopes %}
+          - '{{ scope }}'
+          {% endfor %}
+        {% endif %}
+        {% if client.grant_types is defined %}
+        grant_types:
+          {% for grant_type in client.grant_types %}
+          - '{{ grant_type }}'
+          {% endfor %}
+        {% endif %}
+        {% if client.response_types is defined %}
+        response_types:
+          {% for response_type in client.response_types %}
+          - '{{ response_type }}'
+          {% endfor %}
+        {% endif %}
+        authorization_policy: '{{ client.authorization_policy | default("two_factor") }}'
+        consent_mode: '{{ client.consent_mode | default("auto") }}'
+        require_pkce: {{ client.require_pkce | default("false") }}
+        {% if client.pkce_challenge_method is defined %}
+        pkce_challenge_method: '{{ client.pkce_challenge_method }}'
+        {% endif %}
+        access_token_signed_response_alg: '{{ client.access_token_signed_response_alg | default("none") }}'
+        userinfo_signed_response_alg: '{{ client.userinfo_signed_response_alg | default("none") }}'
+        token_endpoint_auth_method: '{{ client.token_endpoint_auth_method | default("client_secret_basic") }}'
+      {% endfor %}
+{% endif %}
+...

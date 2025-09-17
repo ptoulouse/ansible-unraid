@@ -41,6 +41,7 @@ docker_restart_policy: "always"
 docker_data_path: "/mnt/user/appdata"
 
 # Enable or disable applications.
+authelia_enabled: true
 calibre_web_enabled: true
 cloudflare_ddns_enabled: true
 cops_enabled: true
@@ -66,6 +67,73 @@ mail_relay_smtp_password: "{{ vault_mail_relay_smtp_password }}"
 # LLDAP settings.
 lldap_admin_password: "{{ vault_lldap_admin_password }}"
 lldap_jwt_secret: "{{ vault_lldap_jwt_secret }}"
+lldap_readonly_password: "{{ vault_lldap_readonly_password }}"
+
+# Authelia settings.
+authelia_identity_jwt_secret: "{{ vault_authelia_identity_jwt_secret }}"
+authelia_oidc_hmac_secret: "{{ vault_authelia_oidc_hmac_secret }}"
+authelia_identity_providers_oidc_jwks_key: "{{ vault_authelia_identity_providers_oidc_jwks_key }}"
+authelia_storage_encryption_key: "{{ vault_authelia_storage_encryption_key }}"
+
+authelia_access_control_rules:
+  - domain:
+      - "{{ authelia_hostname }}.{{ domain_name }}"
+      - "{{ plex_hostname }}.{{ domain_name }}"
+      - "{{ nextcloud_hostname }}.{{ domain_name }}"
+    policy: bypass
+  - domain:
+      - "{{ homepage_hostname }}.{{ domain_name }}"
+    resources:
+      - '^/site.webmanifest.*'
+    policy: bypass
+  - domain:
+      - "{{ healthchecks_hostname }}.{{ domain_name }}"
+    resources:
+      - '^/ping/.+'
+    policy: bypass
+  - domain:
+      - "{{ calibre_web_hostname }}.{{ domain_name }}"
+      - "{{ cops_hostname }}.{{ domain_name }}"
+    subject:
+      - group:ebooks_users
+    policy: one_factor
+  - domain:
+      - '*.{{ domain_name }}'
+    subject:
+      - group:admin
+    policy: two_factor
+
+authelia_oidc_clients:
+  - client_id: "{{ vault_bookstack_oidc_id }}"
+    client_name: 'BookStack'
+    client_secret: "{{ vault_bookstack_oidc_secret }}"
+    public: "false"
+    redirect_uris:
+      - 'https://{{ bookstack_hostname }}.{{ domain_name }}/oidc/callback'
+    scopes:
+      - 'openid'
+      - 'groups'
+      - 'email'
+      - 'profile'
+    authorization_policy: 'two_factor'
+    userinfo_signed_response_alg: 'none'
+  - client_id: "{{ vault_nextcloud_oidc_id }}"
+    client_name: 'Nextcloud'
+    client_secret: "{{ vault_nextcloud_oidc_secret }}"
+    public: "false"
+    redirect_uris:
+      - 'https://{{ nextcloud_hostname }}.{{ domain_name }}/apps/user_oidc/code'
+    scopes:
+      - 'openid'
+      - 'groups'
+      - 'email'
+      - 'profile'
+    authorization_policy: 'two_factor'
+    consent_mode: 'implicit'
+    require_pkce: "true"
+    pkce_challenge_method: 'S256'
+    userinfo_signed_response_alg: 'none'
+    token_endpoint_auth_method: 'client_secret_post'
 
 # Healthchecks settings.
 healthchecks_secret_key: "{{ vault_healthchecks_secret_key }}"
@@ -78,3 +146,9 @@ scrutiny_devices:
   - /dev/disk/by-id/ata-WDC_WD80EMZZ-11B4FB0_WD-CA03PHHG:/dev/sdd
   - /dev/disk/by-id/ata-WDC_WD80EMZZ-11B4FB0_WD-CA036WZG:/dev/sde
 scrutiny_port: "8081"
+
+###### TEMPORARY ######
+nextcloud_hostname: "nextcloud"
+homepage_hostname: "homepage"
+authelia_hostname: "auth"
+bookstack_hostname: "bookstack"
