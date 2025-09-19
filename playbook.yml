@@ -18,6 +18,8 @@
       tags: lldap
     - role: authelia
       tags: authelia
+    - role: traefik
+      tags: traefik
 
     # Monitoring services.
     - role: dozzle

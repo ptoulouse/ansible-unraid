@@ -1,0 +1,13 @@
+---
+# Enable or disable the application.
+traefik_enabled: false
+
+# Authelia Docker container settings.
+traefik_cloudflare_api_token: ""
+traefik_container_name: "traefik"
+traefik_forwardauth_address: ""
+traefik_hostname: "traefik"
+traefik_icon_url: "https://github.com/walkxcode/Dashboard-Icons/raw/main/png/traefik.png"
+traefik_image_version: "latest"
+traefik_network: "traefik"
+traefik_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
