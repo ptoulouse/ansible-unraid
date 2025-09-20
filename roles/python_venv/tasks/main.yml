@@ -13,11 +13,6 @@
   args:
     creates: "{{ python_venv_path }}/bin/activate" # Prevents re-creation if already exists
 
-# # Set Python interpreter for subsequent tasks
-# - name: Set Python interpreter to virtual environment
-#   ansible.builtin.set_fact:
-#     ansible_python_interpreter: "{{ python_venv_path }}/bin/python3"
-
 # Install required Python packages in the virtual environment
 - name: Install required Python packages
   ansible.builtin.pip:
