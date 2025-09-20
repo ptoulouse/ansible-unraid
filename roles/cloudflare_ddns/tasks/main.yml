@@ -16,7 +16,7 @@
         restart_policy: "{{ cloudflare_ddns_restart_policy }}"
         env:
           CF_API_TOKEN: "{{ cloudflare_ddns_api_token }}"
-          DOMAINS: "{{ domain_name }}"
+          DOMAINS: "{{ cloudflare_ddns_domain }}"
           IP6_PROVIDER: none
           PROXIED: "true"
           TZ: "{{ timezone }}"
