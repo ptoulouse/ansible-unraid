@@ -3,8 +3,11 @@
 traefik_enabled: false
 
 # Authelia Docker container settings.
+traefik_acme_email: "{{ admin_email }}"
 traefik_cloudflare_api_token: ""
 traefik_container_name: "traefik"
+traefik_data_path: "{{ docker_data_path }}/{{ traefik_container_name }}"
+traefik_domain: "{{ domain_name }}"
 traefik_forwardauth_address: ""
 traefik_hostname: "traefik"
 traefik_icon_url: "https://github.com/walkxcode/Dashboard-Icons/raw/main/png/traefik.png"

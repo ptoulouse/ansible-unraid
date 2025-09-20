@@ -19,14 +19,14 @@
         group: "{{ item.group | default('root') }}"
         mode: "{{ item.mode | default('0750') }}"
       loop:
-        - path: "{{ docker_data_path }}/{{ traefik_container_name }}"
-        - path: "{{ docker_data_path }}/{{ traefik_container_name }}/config"
-        - path: "{{ docker_data_path }}/{{ traefik_container_name }}/config/rules"
+        - path: "{{ traefik_data_path }}"
+        - path: "{{ traefik_data_path }}/config"
+        - path: "{{ traefik_data_path }}/config/rules"
 
     - name: Create acme.json if it does not exist
       ansible.builtin.copy:
         content: ""
-        dest: "{{ docker_data_path }}/{{ traefik_container_name }}/config/acme.json"
+        dest: "{{ traefik_data_path }}/config/acme.json"
         force: false
         owner: root
         group: root
@@ -35,7 +35,7 @@
     - name: Create Traefik static configuration file
       ansible.builtin.template:
         src: "traefik.yml.j2"
-        dest: "{{ docker_data_path }}/{{ traefik_container_name }}/config/traefik.yml"
+        dest: "{{ traefik_data_path }}/config/traefik.yml"
         owner: root
         group: root
         mode: '0640'
@@ -45,7 +45,7 @@
     - name: Create Traefik dynamic configuration file
       ansible.builtin.template:
         src: "{{ item }}.j2"
-        dest: "{{ docker_data_path }}/{{ traefik_container_name }}/config/rules/{{ item }}"
+        dest: "{{ traefik_data_path }}/config/rules/{{ item }}"
         owner: root
         group: root
         mode: '0640'
@@ -70,18 +70,18 @@
         networks:
           - name: "{{ traefik_network }}"
         volumes:
-          - "{{ docker_data_path }}/{{ traefik_container_name }}/config:/config"
+          - "{{ traefik_data_path }}/config:/config"
           - "/var/run/docker.sock:/var/run/docker.sock:ro"
         env:
           CF_DNS_API_TOKEN: "{{ traefik_cloudflare_api_token }}"
-          DOMAIN_NAME: "{{ domain_name }}"
+          DOMAIN_NAME: "{{ traefik_domain }}"
           TZ: "{{ timezone }}"
         labels:
           folder.view2: "Base Services"
           net.unraid.docker.icon: "{{ traefik_icon_url }}"
           net.unraid.docker.managed: "dockerman"
           net.unraid.docker.shell: sh
-          net.unraid.docker.webui: "https://{{ traefik_hostname }}.{{ domain_name }}"
+          net.unraid.docker.webui: "https://{{ traefik_hostname }}.{{ traefik_domain }}"
           traefik.enable: "true"
           # HTTP to HTTPS Redirect
           traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
@@ -91,7 +91,7 @@
           # Traefik Dashboard
           traefik.http.routers.traefik.entrypoints: https
           traefik.http.routers.traefik.middlewares: auth-chain@file
-          traefik.http.routers.traefik.rule: "Host(`{{ traefik_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.traefik.rule: "Host(`{{ traefik_hostname }}.{{ traefik_domain }}`)"
           traefik.http.routers.traefik.service: api@internal
         security_opts:
           - no-new-privileges:true
