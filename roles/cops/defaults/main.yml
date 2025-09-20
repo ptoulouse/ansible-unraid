@@ -4,9 +4,16 @@ cops_enabled: false
 
 # COPS Docker container settings.
 cops_container_name: "cops"
+cops_data_path: "{{ docker_data_path }}/{{ cops_container_name }}"
+cops_domain: "{{ domain_name }}"
 cops_hostname: "cops"
 cops_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/cops.png
 cops_image_version: "latest"
 cops_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+cops_smtp_host: ""
+cops_smtp_username: ""
+cops_smtp_password: ""
+cops_smtp_secure: ""
+cops_smtp_address_from: ""
 cops_group_id: "100"
 cops_user_id: "99"

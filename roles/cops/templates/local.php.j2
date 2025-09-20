@@ -76,13 +76,15 @@ $config['cops_thumbnail_cache_directory'] = "/config/cache/";
  *     "address.from"  => "cops@slucas.fr"
  * ];
  */
+{% if cops_smtp_host | length > 0 %}
 $config['cops_mail_configuration'] = [
-    "smtp.host"     => "{{ mail_relay_container_name }}",
+    "smtp.host"     => "{{ cops_smtp_host }}",
     "smtp.username" => "",
     "smtp.password" => "",
     "smtp.secure"   => "",
-    "address.from"  => "{{ sender_email }}",
+    "address.from"  => "{{ cops_smtp_address_from }}",
 ];
+{% endif %}
 
 /*
  * Use external 'kepubify' tool to convert .epub files to .kepub.epub format for Kobo

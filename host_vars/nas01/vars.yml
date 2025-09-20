@@ -58,19 +58,9 @@ scrutiny_enabled: true
 tautulli_enabled: true
 traefik_enabled: true
 
-# Cloudflare DDNS settings.
-cloudflare_ddns_api_token: "{{ vault_cloudflare_api_token }}"
-
-# Mail Relay settings.
-mail_relay_smtp_server: "smtp.gmail.com"
-mail_relay_smtp_port: "587"
-mail_relay_smtp_username: "{{ vault_mail_relay_smtp_username }}"
-mail_relay_smtp_password: "{{ vault_mail_relay_smtp_password }}"
-
-# LLDAP settings.
-lldap_admin_password: "{{ vault_lldap_admin_password }}"
-lldap_jwt_secret: "{{ vault_lldap_jwt_secret }}"
-lldap_readonly_password: "{{ vault_lldap_readonly_password }}"
+#######################
+### DOCKER SERVICES ###
+#######################
 
 # Authelia settings.
 authelia_domain: "{{ vault_domain_name }}"
@@ -141,13 +131,26 @@ authelia_oidc_clients:
     userinfo_signed_response_alg: 'none'
     token_endpoint_auth_method: 'client_secret_post'
 
-# Traefik
-traefik_cloudflare_api_token: "{{ vault_cloudflare_api_token }}"
-traefik_forwardauth_address: "http://{{ authelia_container_name }}:9091/api/verify?rd=https://{{ authelia_hostname }}.{{ domain_name }}"
-traefik_hosts: "{{ vault_traefik_hosts }}"
+# Cloudflare DDNS settings.
+cloudflare_ddns_api_token: "{{ vault_cloudflare_api_token }}"
+
+# COPS
+cops_smtp_host: "{{ mail_relay_container_name }}"
+cops_smtp_address_from: "{{ vault_sender_email }}"
 
 # Healthchecks settings.
 healthchecks_secret_key: "{{ vault_healthchecks_secret_key }}"
+
+# LLDAP settings.
+lldap_admin_password: "{{ vault_lldap_admin_password }}"
+lldap_jwt_secret: "{{ vault_lldap_jwt_secret }}"
+lldap_readonly_password: "{{ vault_lldap_readonly_password }}"
+
+# Mail Relay settings.
+mail_relay_smtp_server: "smtp.gmail.com"
+mail_relay_smtp_port: "587"
+mail_relay_smtp_username: "{{ vault_mail_relay_smtp_username }}"
+mail_relay_smtp_password: "{{ vault_mail_relay_smtp_password }}"
 
 # Scrutiny settings.
 scrutiny_devices:
@@ -157,6 +160,11 @@ scrutiny_devices:
   - /dev/disk/by-id/ata-WDC_WD80EMZZ-11B4FB0_WD-CA03PHHG:/dev/sdd
   - /dev/disk/by-id/ata-WDC_WD80EMZZ-11B4FB0_WD-CA036WZG:/dev/sde
 scrutiny_port: "8081"
+
+# Traefik
+traefik_cloudflare_api_token: "{{ vault_cloudflare_api_token }}"
+traefik_forwardauth_address: "http://{{ authelia_container_name }}:9091/api/verify?rd=https://{{ authelia_hostname }}.{{ domain_name }}"
+traefik_hosts: "{{ vault_traefik_hosts }}"
 
 ###### TEMPORARY ######
 nextcloud_hostname: "nextcloud"
