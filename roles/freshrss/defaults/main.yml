@@ -4,6 +4,8 @@ freshrss_enabled: false
 
 # FreshRSS Docker container settings.
 freshrss_container_name: "freshrss"
+freshrss_data_path: "{{ docker_data_path }}/{{ freshrss_container_name }}"
+freshrss_domain: "{{ domain_name }}"
 freshrss_hostname: "freshrss"
 freshrss_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/freshrss.png
 freshrss_image_version: "latest"

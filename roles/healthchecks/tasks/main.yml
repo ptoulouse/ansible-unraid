@@ -2,6 +2,17 @@
 - name: Start Healthchecks
   when: healthchecks_enabled is true
   block:
+    - name: Check that required variables are defined.
+      ansible.builtin.assert:
+        that:
+          - item | length > 0
+        fail_msg: "{{ item }} is not defined."
+      loop:
+        - healthchecks_domain
+        - healthchecks_secret_key
+        - healthchecks_smtp_host
+        - healthchecks_smtp_address_from
+
     - name: Create Healthchecks directories
       ansible.builtin.file:
         path: "{{ item.path }}"
@@ -10,8 +21,8 @@
         group: "{{ item.group | default('root') }}"
         mode: "{{ item.mode | default('0750') }}"
       loop:
-        - path: "{{ docker_data_path }}/{{ healthchecks_container_name }}"
-        - path: "{{ docker_data_path }}/{{ healthchecks_container_name }}/config"
+        - path: "{{ healthchecks_data_path }}"
+        - path: "{{ healthchecks_data_path }}/config"
           owner: "{{ healthchecks_user_id }}"
           group: "{{ healthchecks_group_id }}"
 
@@ -23,25 +34,25 @@
         restart_policy: "{{ healthchecks_restart_policy }}"
         networks:
           - name: "{{ mail_relay_network }}"
-          - name: traefik
+          - name: "{{ traefik_network }}"
         volumes:
-          - "{{ docker_data_path }}/{{ healthchecks_container_name }}/config:/config"
+          - "{{ healthchecks_data_path }}/config:/config"
         env:
-          DEFAULT_FROM_EMAIL: "{{ sender_email }}"
-          EMAIL_HOST: "{{ mail_relay_container_name }}"
-          EMAIL_HOST_PASSWORD: ""
-          EMAIL_HOST_USER: ""
-          EMAIL_PORT: "25"
-          EMAIL_USE_TLS: "False"
+          DEFAULT_FROM_EMAIL: "{{ healthchecks_smtp_address_from }}"
+          EMAIL_HOST: "{{ healthchecks_smtp_host }}"
+          EMAIL_HOST_PASSWORD: "{{ healthchecks_smtp_password }}"
+          EMAIL_HOST_USER: "{{ healthchecks_smtp_username }}"
+          EMAIL_PORT: "{{ healthchecks_smtp_port }}"
+          EMAIL_USE_TLS: "{{ healthchecks_smtp_tls }}"
           PGID: "{{ healthchecks_group_id }}"
           PUID: "{{ healthchecks_user_id }}"
           REGENERATE_SETTINGS: "True"
           REGISTRATION_OPEN: "False"
           REMOTE_USER_HEADER: HTTP_REMOTE_EMAIL
           SECRET_KEY: "{{ healthchecks_secret_key }}"
-          SITE_ROOT: "https://{{ healthchecks_hostname }}.{{ domain_name }}"
+          SITE_ROOT: "https://{{ healthchecks_hostname }}.{{ healthchecks_domain }}"
           SITE_NAME: "Homelab Healthchecks"
-          SUPERUSER_EMAIL: admin@{{ domain_name }}
+          SUPERUSER_EMAIL: admin@{{ healthchecks_domain }}
           SUPERUSER_PASSWORD: "{{ admin_password }}"
           TZ: "{{ timezone }}"
         labels:
@@ -49,11 +60,11 @@
           net.unraid.docker.icon: "{{ healthchecks_icon_url }}"
           net.unraid.docker.managed: "dockerman"
           net.unraid.docker.shell: "bash"
-          net.unraid.docker.webui: "https://{{ healthchecks_hostname }}.{{ domain_name }}"
+          net.unraid.docker.webui: "https://{{ healthchecks_hostname }}.{{ healthchecks_domain }}"
           traefik.enable: "true"
           traefik.http.routers.healthchecks.entrypoints: "https"
           traefik.http.routers.healthchecks.middlewares: "auth-chain@file"
-          traefik.http.routers.healthchecks.rule: "Host(`{{ healthchecks_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.healthchecks.rule: "Host(`{{ healthchecks_hostname }}.{{ healthchecks_domain }}`)"
           traefik.http.routers.healthchecks.service: "healthchecks"
           traefik.http.services.healthchecks.loadbalancer.server.port: "8000"
         security_opts:

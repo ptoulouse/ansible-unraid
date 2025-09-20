@@ -9,7 +9,7 @@
         pull: true
         restart_policy: "{{ glances_restart_policy }}"
         networks:
-          - name: traefik
+          - name: "{{ traefik_network }}"
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock:ro"
           - "/etc/timezone:/etc/timezone:ro"

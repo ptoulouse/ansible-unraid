@@ -33,7 +33,7 @@
         restart_policy: "{{ cops_restart_policy }}"
         networks:
           - name: "{{ mail_relay_network }}"
-          - name: traefik
+          - name: "{{ traefik_network }}"
         volumes:
           - "{{ books_path }}:/books"
           - "{{ cops_data_path }}/config:/config"

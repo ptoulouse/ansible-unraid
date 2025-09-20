@@ -4,6 +4,8 @@ plex_enabled: false
 
 # Plex Docker container settings.
 plex_container_name: "plex"
+plex_data_path: "{{ docker_data_path }}/{{ plex_container_name }}"
+plex_domain: "{{ domain_name }}"
 plex_hostname: "plex"
 plex_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/plex.png
 plex_image_version: "latest"

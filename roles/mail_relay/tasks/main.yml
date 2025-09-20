@@ -34,7 +34,7 @@
           SMTP_PORT: "{{ mail_relay_smtp_port }}"
           SMTP_USERNAME: "{{ mail_relay_smtp_username }}"
           SMTP_PASSWORD: "{{ mail_relay_smtp_password }}"
-          SERVER_HOSTNAME: "{{ server_name }}.{{ domain_name }}"
+          SERVER_HOSTNAME: "{{ mail_relay_server_name }}.{{ mail_relay_domain }}"
           TZ: "{{ timezone }}"
         labels:
           folder.view2: "Base Services"

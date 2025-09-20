@@ -6,6 +6,8 @@ lldap_enabled: false
 lldap_admin_password: ""
 lldap_base_dn: "dc={{ domain_name.split('.')[0] }},dc={{ domain_name.split('.')[1] }}"
 lldap_container_name: "lldap"
+lldap_data_path: "{{ docker_data_path }}/{{ lldap_container_name }}"
+lldap_domain: "{{ domain_name }}"
 lldap_hostname: "lldap"
 lldap_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/ldap.png
 lldap_image_version: "stable"

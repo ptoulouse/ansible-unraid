@@ -134,10 +134,6 @@ authelia_oidc_clients:
 # Cloudflare DDNS settings.
 cloudflare_ddns_api_token: "{{ vault_cloudflare_api_token }}"
 
-# COPS
-cops_smtp_host: "{{ mail_relay_container_name }}"
-cops_smtp_address_from: "{{ vault_sender_email }}"
-
 # Healthchecks settings.
 healthchecks_secret_key: "{{ vault_healthchecks_secret_key }}"
 

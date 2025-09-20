@@ -4,6 +4,8 @@ tautulli_enabled: false
 
 # Tautulli Docker container settings.
 tautulli_container_name: "tautulli"
+tautulli_data_path: "{{ docker_data_path }}/{{ tautulli_container_name }}"
+tautulli_domain: "{{ domain_name }}"
 tautulli_hostname: "tautulli"
 tautulli_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/tautulli.png
 tautulli_image_version: "latest"

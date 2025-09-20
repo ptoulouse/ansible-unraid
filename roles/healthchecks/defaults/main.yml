@@ -4,9 +4,18 @@ healthchecks_enabled: false
 
 # Docker container settings.
 healthchecks_container_name: "healthchecks"
+healthchecks_data_path: "{{ docker_data_path }}/{{ healthchecks_container_name }}"
+healthchecks_domain: "{{ domain_name }}"
 healthchecks_hostname: "healthchecks"
 healthchecks_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/healthchecks.png
 healthchecks_image_version: "latest"
 healthchecks_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+healthchecks_secret_key: ""
+healthchecks_smtp_host: "{{ mail_relay_container_name }}"
+healthchecks_smtp_username: ""
+healthchecks_smtp_password: ""
+healthchecks_smtp_port: "25"
+healthchecks_smtp_tls: "False"
+healthchecks_smtp_address_from: "{{ sender_email }}"
 healthchecks_group_id: "100"
 healthchecks_user_id: "99"

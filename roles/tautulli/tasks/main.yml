@@ -10,8 +10,8 @@
         group: "{{ item.group | default('root') }}"
         mode: "{{ item.mode | default('0750') }}"
       loop:
-        - path: "{{ docker_data_path }}/{{ tautulli_container_name }}"
-        - path: "{{ docker_data_path }}/{{ tautulli_container_name }}/config"
+        - path: "{{ tautulli_data_path }}"
+        - path: "{{ tautulli_data_path }}/config"
           owner: "{{ tautulli_user_id }}"
           group: "{{ tautulli_group_id }}"
 
@@ -22,10 +22,10 @@
         pull: true
         restart_policy: "{{ tautulli_restart_policy }}"
         networks:
-          - name: traefik
+          - name: "{{ traefik_network }}"
         volumes:
-          - "{{ docker_data_path }}/{{ plex_container_name }}/config/Library/Application Support/Plex Media Server/Logs:/logs:ro"
-          - "{{ docker_data_path }}/{{ tautulli_container_name }}/config:/config"
+          - "{{ plex_data_path }}/config/Library/Application Support/Plex Media Server/Logs:/logs:ro"
+          - "{{ tautulli_data_path }}/config:/config"
         env:
           PGID: "{{ tautulli_group_id }}"
           PUID: "{{ tautulli_user_id }}"
@@ -35,11 +35,11 @@
           net.unraid.docker.icon: "{{ tautulli_icon_url }}"
           net.unraid.docker.managed: "dockerman"
           net.unraid.docker.shell: bash
-          net.unraid.docker.webui: "https://{{ tautulli_hostname }}.{{ domain_name }}"
+          net.unraid.docker.webui: "https://{{ tautulli_hostname }}.{{ tautulli_domain }}"
           traefik.enable: "true"
           traefik.http.routers.tautulli.entrypoints: "https"
           traefik.http.routers.tautulli.middlewares: "auth-chain@file"
-          traefik.http.routers.tautulli.rule: "Host(`{{ tautulli_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.tautulli.rule: "Host(`{{ tautulli_hostname }}.{{ tautulli_domain }}`)"
           traefik.http.routers.tautulli.service: "tautulli"
           traefik.http.services.tautulli.loadbalancer.server.port: "8181"
         security_opts:

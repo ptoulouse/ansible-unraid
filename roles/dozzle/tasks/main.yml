@@ -9,7 +9,7 @@
         pull: true
         restart_policy: "{{ dozzle_restart_policy }}"
         networks:
-          - name: traefik
+          - name: "{{ traefik_network }}"
         volumes:
           - /etc/localtime:/etc/localtime:ro
           - /var/run/docker.sock:/var/run/docker.sock:ro

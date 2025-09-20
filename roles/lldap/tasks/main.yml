@@ -10,7 +10,7 @@
       loop:
         - lldap_admin_password
         - lldap_jwt_secret
-        - domain_name
+        - lldap_domain
 
     - name: Create lldap directories
       ansible.builtin.file:
@@ -20,8 +20,8 @@
         group: "{{ item.group | default('root') }}"
         mode: "{{ item.mode | default('0750') }}"
       loop:
-        - path: "{{ docker_data_path }}/{{ lldap_container_name }}"
-        - path: "{{ docker_data_path }}/{{ lldap_container_name }}/data"
+        - path: "{{ lldap_data_path }}"
+        - path: "{{ lldap_data_path }}/data"
           owner: "{{ lldap_user_id }}"
           group: "{{ lldap_group_id }}"
 
@@ -32,9 +32,9 @@
         pull: true
         restart_policy: "{{ lldap_restart_policy }}"
         networks:
-          - name: traefik
+          - name: "{{ traefik_network }}"
         volumes:
-          - "{{ docker_data_path }}/{{ lldap_container_name }}/data:/data"
+          - "{{ lldap_data_path }}/data:/data"
         env:
           GID: "{{ lldap_group_id }}"
           UID: "{{ lldap_user_id }}"
@@ -47,11 +47,11 @@
           net.unraid.docker.icon: "{{ lldap_icon_url }}"
           net.unraid.docker.managed: "dockerman"
           net.unraid.docker.shell: bash
-          net.unraid.docker.webui: "https://{{ lldap_hostname }}.{{ domain_name }}"
+          net.unraid.docker.webui: "https://{{ lldap_hostname }}.{{ lldap_domain }}"
           traefik.enable: "true"
           traefik.http.routers.lldap.entrypoints: "https"
           traefik.http.routers.lldap.middlewares: "auth-chain@file"
-          traefik.http.routers.lldap.rule: "Host(`{{ lldap_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.lldap.rule: "Host(`{{ lldap_hostname }}.{{ lldap_domain }}`)"
           traefik.http.routers.lldap.service: "lldap"
           traefik.http.services.lldap.loadbalancer.server.port: "17170"
         security_opts:
