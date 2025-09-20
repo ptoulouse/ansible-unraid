@@ -10,8 +10,8 @@
         group: "{{ item.group | default('root') }}"
         mode: "{{ item.mode | default('0750') }}"
       loop:
-        - path: "{{ docker_data_path }}/{{ calibre_web_container_name }}"
-        - path: "{{ docker_data_path }}/{{ calibre_web_container_name }}/config"
+        - path: "{{ calibre_web_data_path }}"
+        - path: "{{ calibre_web_data_path }}/config"
           owner: "{{ calibre_web_user_id }}"
           group: "{{ calibre_web_group_id }}"
 
@@ -26,7 +26,7 @@
           - name: traefik
         volumes:
           - "{{ books_path }}:/books"
-          - "{{ docker_data_path }}/{{ calibre_web_container_name }}/config:/config"
+          - "{{ calibre_web_data_path }}/config:/config"
         env:
           DOCKER_MODS: "linuxserver/calibre-web:calibre"
           PGID: "{{ calibre_web_group_id }}"
@@ -37,11 +37,11 @@
           net.unraid.docker.icon: "{{ calibre_web_icon_url }}"
           net.unraid.docker.managed: "dockerman"
           net.unraid.docker.shell: bash
-          net.unraid.docker.webui: "https://{{ calibre_web_hostname }}.{{ domain_name }}"
+          net.unraid.docker.webui: "https://{{ calibre_web_hostname }}.{{ calibre_web_domain }}"
           traefik.enable: "true"
           traefik.http.routers.calibre-web.entrypoints: "https"
           traefik.http.routers.calibre-web.middlewares: "auth-chain@file"
-          traefik.http.routers.calibre-web.rule: "Host(`{{ calibre_web_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.calibre-web.rule: "Host(`{{ calibre_web_hostname }}.{{ calibre_web_domain }}`)"
           traefik.http.routers.calibre-web.service: "calibre-web"
           traefik.http.services.calibre-web.loadbalancer.server.port: "8083"
         security_opts:
