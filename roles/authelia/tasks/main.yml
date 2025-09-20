@@ -5,13 +5,16 @@
     - name: Check that required variables are defined.
       ansible.builtin.assert:
         that:
-          - "{{ item | length > 0 }}"
+          - item | length > 0
         fail_msg: "{{ item }} is not defined."
       loop:
+        - authelia_domain
         - authelia_jwt_secret
         - authelia_lldap_readonly_password
         - authelia_oidc_hmac_secret
         - authelia_oidc_private_key
+        - authelia_smto_address
+        - authelia_smtp_sender
         - authelia_storage_encryption_key
 
     - name: Create authelia directories
@@ -59,11 +62,11 @@
           net.unraid.docker.icon: "{{ authelia_icon_url }}"
           net.unraid.docker.managed: "dockerman"
           net.unraid.docker.shell: bash
-          net.unraid.docker.webui: "https://{{ authelia_hostname }}.{{ domain_name }}"
+          net.unraid.docker.webui: "https://{{ authelia_hostname }}.{{ authelia_domain }}"
           traefik.enable: "true"
           traefik.http.routers.authelia.entrypoints: "https"
           traefik.http.routers.authelia.middlewares: "auth-chain@file"
-          traefik.http.routers.authelia.rule: "Host(`{{ authelia_hostname }}.{{ domain_name }}`)"
+          traefik.http.routers.authelia.rule: "Host(`{{ authelia_hostname }}.{{ authelia_domain }}`)"
           traefik.http.routers.authelia.service: "authelia"
           traefik.http.services.authelia.loadbalancer.server.port: "9091"
         security_opts:

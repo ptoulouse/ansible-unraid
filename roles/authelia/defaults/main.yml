@@ -5,6 +5,7 @@ authelia_enabled: false
 # Authelia Docker container settings.
 authelia_access_control_rules: []
 authelia_container_name: "authelia"
+authelia_domain: ""
 authelia_hostname: "auth"
 authelia_icon_url: "https://github.com/walkxcode/Dashboard-Icons/raw/main/png/authelia.png"
 authelia_image_version: "latest"
@@ -14,6 +15,8 @@ authelia_oidc_clients: []
 authelia_oidc_hmac_secret: ""
 authelia_oidc_private_key: ""
 authelia_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+authelia_smtp_address: ""
+authelia_smtp_sender: ""
 authelia_storage_encryption_key: ""
 authelia_group_id: "100"
 authelia_user_id: "99"

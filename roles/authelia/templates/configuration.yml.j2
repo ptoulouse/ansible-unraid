@@ -26,7 +26,7 @@ log:
 # TOTP Configuration
 #
 totp:
-  issuer: "{{ domain_name }}"
+  issuer: "{{ authelia_domain }}"
 
 #
 # Identity Validation Configuration
@@ -135,8 +135,8 @@ session:
   remember_me: 1M
 
   cookies:
-    - domain: "{{ domain_name }}"
-      authelia_url: "https://{{ authelia_hostname }}.{{ domain_name }}"
+    - domain: "{{ authelia_domain }}"
+      authelia_url: "https://{{ authelia_hostname }}.{{ authelia_domain }}"
 
 #
 # Storage Provider Configuration
@@ -156,8 +156,8 @@ storage:
 ## The available providers are: filesystem, smtp. You must use only one of these providers.
 notifier:
   smtp:
-    address: smtp://{{ mail_relay_hostname }}:25
-    sender: "Authelia <{{ sender_email }}>"
+    address: "{{ authelia_smtp_address }}"
+    sender: "{{ authelia_smtp_sender }}"
     disable_require_tls: true
 
 {% if authelia_oidc_clients | length > 0 %}
