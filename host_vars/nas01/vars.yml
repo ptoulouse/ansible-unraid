@@ -77,7 +77,7 @@ authelia_domain: "{{ vault_domain_name }}"
 authelia_identity_jwt_secret: "{{ vault_authelia_identity_jwt_secret }}"
 authelia_oidc_hmac_secret: "{{ vault_authelia_oidc_hmac_secret }}"
 authelia_identity_providers_oidc_jwks_key: "{{ vault_authelia_identity_providers_oidc_jwks_key }}"
-authelia_smtp_address: "smtp:{{ mail_relay_hostname }}:25"
+authelia_smtp_address: "smtp://{{ mail_relay_hostname }}:25"
 authelia_smtp_sender: "Authelia <{{ vault_sender_email }}>"
 authelia_storage_encryption_key: "{{ vault_authelia_storage_encryption_key }}"
 

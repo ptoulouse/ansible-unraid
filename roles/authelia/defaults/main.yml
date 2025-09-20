@@ -5,7 +5,8 @@ authelia_enabled: false
 # Authelia Docker container settings.
 authelia_access_control_rules: []
 authelia_container_name: "authelia"
-authelia_domain: ""
+authelia_data_path: "{{ docker_data_path }}/{{ authelia_container_name }}"
+authelia_domain: "{{ domain_name }}"
 authelia_hostname: "auth"
 authelia_icon_url: "https://github.com/walkxcode/Dashboard-Icons/raw/main/png/authelia.png"
 authelia_image_version: "latest"
