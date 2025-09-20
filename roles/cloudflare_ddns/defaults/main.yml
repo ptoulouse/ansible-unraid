@@ -4,6 +4,7 @@ cloudflare_ddns_enabled: false
 
 # Cloudflare dynamic DNS Docker container settings.
 cloudflare_ddns_container_name: "cloudflare-ddns"
+cloudflare_ddns_domain: "{{ domain_name }}"
 cloudflare_ddns_hostname: "cloudflare-ddns"
 cloudflare_ddns_icon_url: "https://github.com/ptoulouse/ansible-unraid/raw/main/icons/cloudflare.png"
 cloudflare_ddns_image_version: "latest"
