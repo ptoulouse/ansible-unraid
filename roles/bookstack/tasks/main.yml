@@ -1,0 +1,140 @@
+---
+- name: Start Bookstack
+  when: bookstack_enabled is true
+  block:
+    - name: Check that required variables are defined.
+      ansible.builtin.assert:
+        that:
+          - item | length > 0
+        fail_msg: "{{ item }} is not defined."
+      loop:
+        - bookstack_db_password
+        - booksctack_oidc_client_id
+        - bookstack_oidc_client_secret
+
+    - name: Check that bookstack_db_password is defined.
+      ansible.builtin.assert:
+        that:
+          - bookstack_db_password | length > 0
+        fail_msg: "bookstack_db_password is not defined."
+
+    - name: Create Bookstack directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ bookstack_data_path }}"
+        - path: "{{ bookstack_data_path }}/config"
+          owner: "{{ bookstack_user_id }}"
+          group: "{{ bookstack_group_id }}"
+        - path: "{{ bookstack_data_path }}/db"
+          owner: "{{ bookstack_user_id }}"
+          group: "{{ bookstack_group_id }}"
+        - path: "{{ bookstack_data_path }}/db-dump"
+
+    - name: Create Bookstack Docker network
+      community.docker.docker_network:
+        name: "{{ bookstack_network }}"
+        state: present
+
+    - name: Create Bookstack database Docker container
+      community.docker.docker_container:
+        name: "{{ bookstack_db_container_name }}"
+        image: "lscr.io/linuxserver/mariadb:{{ bookstack_db_image_version }}"
+        pull: true
+        restart_policy: "{{ bookstack_restart_policy }}"
+        networks:
+          - name: "{{ bookstack_network }}"
+        volumes:
+          - "{{ bookstack_data_path }}/db:/config"
+        env:
+          MYSQL_DATABASE: bookstack
+          MYSQL_PASSWORD: "{{ bookstack_db_password }}"
+          MYSQL_ROOT_PASSWORD: "{{ bookstack_db_password }}"
+          MYSQL_USER: bookstack
+          PGID: "{{ bookstack_group_id }}"
+          PUID: "{{ bookstack_user_id }}"
+          TZ: "{{ timezone }}"
+          WKHTMLTOPDF: /usr/bin/wkhtmltopdf
+        labels:
+          folder.view2: "Documentation and Notes"
+          net.unraid.docker.icon: "{{ bookstack_db_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+        security_opts:
+          - no-new-privileges:true
+
+    - name: Create Bookstack Docker Container
+      community.docker.docker_container:
+        name: "{{ bookstack_container_name }}"
+        image: "lscr.io/linuxserver/bookstack:{{ bookstack_image_version }}"
+        pull: true
+        restart_policy: "{{ bookstack_restart_policy }}"
+        networks:
+          - name: "{{ bookstack_network }}"
+          - name: "{{ traefik_network }}"
+          - name: "{{ mail_relay_network }}"
+        volumes:
+          - "{{ bookstack_data_path }}/config:/config"
+        env:
+          APP_LANG: fr
+          APP_URL: "https://{{ bookstack_hostname }}.{{ bookstack_domain }}"
+          AUTH_METHOD: oidc
+          DB_DATABASE: bookstack
+          DB_HOST: "{{ bookstack_db_container_name }}"
+          DB_USER: bookstack
+          EXPORT_PAGE_SIZE: letter
+          DB_PASS: "{{ bookstack_db_password }}"
+          OIDC_NAME: Authelia
+          OIDC_DISPLAY_NAME_CLAIMS: name
+          OIDC_CLIENT_ID: "{{ bookstack_oidc_client_id }}"
+          OIDC_CLIENT_SECRET: "{{ bookstack_oidc_client_secret }}"
+          OIDC_ISSUER: "{{ bookstack_oidc_issuer }}"
+          OIDC_ISSUER_DISCOVER: "true"
+          OIDC_USER_TO_GROUPS: "true"
+          OIDC_GROUPS_CLAIM: groups
+          OIDC_ADDITIONAL_SCOPES: groups
+          OIDC_REMOVE_FROM_GROUPS: "true"
+          MAIL_DRIVER: "smtp"
+          MAIL_FROM_NAME: "Bookstack"
+          MAIL_HOST: "{{ bookstack_smtp_host }}"
+          MAIL_PORT: "{{ bookstack_smtp_port }}"
+          PGID: "{{ bookstack_group_id }}"
+          PUID: "{{ bookstack_user_id }}"
+          TZ: "{{ timezone }}"
+          WKHTMLTOPDF: /usr/bin/wkhtmltopdf
+        labels:
+          folder.view2: "Documentation and Notes"
+          net.unraid.docker.icon: "{{ bookstack_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ bookstack_hostname }}.{{ bookstack_domain }}"
+          traefik.enable: "true"
+          traefik.http.routers.bookstack.entrypoints: "https"
+          traefik.http.routers.bookstack.middlewares: "auth-chain@file"
+          traefik.http.routers.bookstack.rule: "Host(`{{ bookstack_hostname }}.{{ bookstack_domain }}`)"
+          traefik.http.routers.bookstack.service: "bookstack"
+          traefik.http.services.bookstack.loadbalancer.server.port: "80"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Bookstack
+  when: bookstack_enabled is false
+  block:
+    - name: Stop Bookstack
+      community.docker.docker_container:
+        name: "{{ bookstack_container_name }}"
+        state: absent
+
+    - name: Stop Bookstack DB
+      community.docker.docker_container:
+        name: "{{ bookstack_db_container_name }}"
+        state: absent
+
+    - name: Remove Bookstack Docker network
+      community.docker.docker_network:
+        name: bookstack
+        state: absent

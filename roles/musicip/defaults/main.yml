@@ -1,0 +1,14 @@
+---
+# Enable or disable the application.
+musicip_enabled: false
+
+# Lyrion ocker container settings.
+musicip_container_name: "musicip"
+musicip_data_path: "{{ docker_data_path }}/{{ musicip_container_name }}"
+musicip_domain: "{{ domain_name }}"
+musicip_hostname: "musicip"
+musicip_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/musicip.png
+musicip_image_version: "latest"
+musicip_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+musicip_group_id: "100"
+musicip_user_id: "99"

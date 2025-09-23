@@ -22,8 +22,9 @@ admin_password: "{{ vault_admin_password }}"
 sender_email: "{{ vault_sender_email }}"
 
 # Shares paths.
-books_path: "/mnt/user/media/libraries/books"
+books_path: "{{ media_path }}/libraries/books"
 media_path: "/mnt/user/media"
+music_path: "{{ media_path }}/libraries/music"
 photos_path: "/mnt/user/photos"
 
 # Path where Python virtual environment will be created.
@@ -44,6 +45,7 @@ docker_data_path: "/mnt/user/appdata"
 
 # Enable or disable applications.
 authelia_enabled: true
+bookstack_enabled: true
 calibre_web_enabled: true
 cloudflare_ddns_enabled: true
 cops_enabled: true
@@ -52,7 +54,9 @@ freshrss_enabled: true
 glances_enabled: true
 healthchecks_enabled: true
 lldap_enabled: true
+lms_enabled: true
 mail_relay_enabled: true
+musicip_enabled: true
 plex_enabled: true
 scrutiny_enabled: true
 tautulli_enabled: true
@@ -102,7 +106,7 @@ authelia_access_control_rules:
 authelia_oidc_clients:
   - client_id: "{{ vault_bookstack_oidc_id }}"
     client_name: 'BookStack'
-    client_secret: "{{ vault_bookstack_oidc_secret }}"
+    client_secret: "{{ vault_bookstack_oidc_secret_pbkdf2 }}"
     public: "false"
     redirect_uris:
       - 'https://{{ bookstack_hostname }}.{{ domain_name }}/oidc/callback'
@@ -130,6 +134,10 @@ authelia_oidc_clients:
     pkce_challenge_method: 'S256'
     userinfo_signed_response_alg: 'none'
     token_endpoint_auth_method: 'client_secret_post'
+# Bookstack settings.
+bookstack_db_password: "{{ vault_bookstack_db_password }}"
+bookstack_oidc_client_id: "{{ vault_bookstack_oidc_id }}"
+bookstack_oidc_client_secret: "{{ vault_bookstack_oidc_secret }}"
 
 # Cloudflare DDNS settings.
 cloudflare_ddns_api_token: "{{ vault_cloudflare_api_token }}"

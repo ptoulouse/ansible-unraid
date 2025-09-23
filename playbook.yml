@@ -43,6 +43,16 @@
     - role: tautulli
       tags: tautulli
 
+    # Documentation and Notes.
+    - role: bookstack
+      tags: bookstack
+
+    # Music services.
+    - role: musicip
+      tags: musicip
+    - role: lms
+      tags: lms
+
     # Other services.
     - role: freshrss
       tags: freshrss

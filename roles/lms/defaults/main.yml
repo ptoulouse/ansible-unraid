@@ -1,0 +1,14 @@
+---
+# Enable or disable the application.
+lms_enabled: false
+
+# Lyrion Music Server docker container settings.
+lms_container_name: "lms"
+lms_data_path: "{{ docker_data_path }}/{{ lms_container_name }}"
+lms_domain: "{{ domain_name }}"
+lms_hostname: "lms"
+lms_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/lyrion-music-server.png
+lms_image_version: "stable"
+lms_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+lms_group_id: "100"
+lms_user_id: "99"

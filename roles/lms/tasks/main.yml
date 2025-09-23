@@ -1,0 +1,57 @@
+---
+- name: Start Lyrion
+  when: lms_enabled is true
+  block:
+    - name: Create Lyrion directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ lms_data_path }}"
+        - path: "{{ lms_data_path }}/config"
+          owner: "{{ lms_user_id }}"
+          group: "{{ lms_group_id }}"
+        - path: "{{ lms_data_path }}/playlists"
+          owner: "{{ lms_user_id }}"
+          group: "{{ lms_group_id }}"
+
+    - name: Create Lyrion Docker Container
+      community.docker.docker_container:
+        name: "{{ lms_container_name }}"
+        image: "lmscommunity/lyrionmusicserver:{{ lms_image_version }}"
+        pull: true
+        restart_policy: "{{ lms_restart_policy }}"
+        network_mode: host
+        volumes:
+          - "{{ lms_data_path }}/config:/config"
+          - "{{ lms_data_path }}/playlists:/playlist"
+          - "{{ music_path }}:/music:ro"
+          - "/etc/localtime:/etc/localtime:ro"
+        env:
+          PGID: "{{ lms_group_id }}"
+          PUID: "{{ lms_user_id }}"
+        labels:
+          folder.view2: "Music"
+          net.unraid.docker.icon: "{{ lms_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ lms_hostname }}.{{ lms_domain }}"
+          traefik.enable: "true"
+          traefik.http.routers.lms.entrypoints: "https"
+          traefik.http.routers.lms.middlewares: "auth-chain@file"
+          traefik.http.routers.lms.rule: "Host(`{{ lms_hostname }}.{{ lms_domain }}`)"
+          traefik.http.routers.lms.service: "lms"
+          traefik.http.services.lms.loadbalancer.server.port: "9000"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Lyrion
+  when: lms_enabled is false
+  block:
+    - name: Stop Lyrion
+      community.docker.docker_container:
+        name: "{{ lms_container_name }}"
+        state: absent

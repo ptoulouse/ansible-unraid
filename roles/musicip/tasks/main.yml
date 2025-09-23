@@ -1,0 +1,57 @@
+---
+- name: Start MusicIP
+  when: musicip_enabled is true
+  block:
+    - name: Create MusicIP directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ musicip_data_path }}"
+        - path: "{{ musicip_data_path }}/config"
+          owner: "{{ musicip_user_id }}"
+          group: "{{ musicip_group_id }}"
+
+    - name: Create MusicIP Docker Container
+      community.docker.docker_container:
+        name: "{{ musicip_container_name }}"
+        image: "ptoulouse/musicip:{{ musicip_image_version }}"
+        pull: true
+        restart_policy: "{{ musicip_restart_policy }}"
+        published_ports:
+          - "10002:10002"
+        networks:
+          - name: "{{ traefik_network }}"
+        volumes:
+          - "{{ musicip_data_path }}/config:/config"
+          - "{{ music_path }}:/music:ro"
+          - "/etc/localtime:/etc/localtime:ro"
+        env:
+          PGID: "{{ musicip_group_id }}"
+          PUID: "{{ musicip_user_id }}"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Music"
+          net.unraid.docker.icon: "{{ musicip_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ musicip_hostname }}.{{ musicip_domain }}"
+          traefik.enable: "true"
+          traefik.http.routers.musicip.entrypoints: "https"
+          traefik.http.routers.musicip.middlewares: "auth-chain@file"
+          traefik.http.routers.musicip.rule: "Host(`{{ musicip_hostname }}.{{ musicip_domain }}`)"
+          traefik.http.routers.musicip.service: "musicip"
+          traefik.http.services.musicip.loadbalancer.server.port: "10002"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop MusicIP
+  when: musicip_enabled is false
+  block:
+    - name: Stop MusicIP
+      community.docker.docker_container:
+        name: "{{ musicip_container_name }}"
+        state: absent

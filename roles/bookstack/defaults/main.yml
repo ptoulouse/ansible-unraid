@@ -1,0 +1,24 @@
+---
+# Enable or disable the application.
+bookstack_enabled: false
+
+# Bookstack Docker container settings.
+bookstack_container_name: "bookstack"
+bookstack_db_container_name: "bookstack-db"
+bookstack_db_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/mariadb.png
+bookstack_db_image_version: "latest"
+bookstack_db_password: ""
+bookstack_data_path: "{{ docker_data_path }}/{{ bookstack_container_name }}"
+bookstack_domain: "{{ domain_name }}"
+bookstack_hostname: "bookstack"
+bookstack_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/bookstack.png
+bookstack_image_version: "latest"
+bookstack_network: "bookstack"
+bookstack_oidc_client_id: ""
+bookstack_oidc_client_secret: ""
+bookstack_oidc_issuer: "https://{{ authelia_hostname }}.{{ bookstack_domain }}"
+bookstack_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+bookstack_smtp_host: "{{ mail_relay_container_name }}"
+bookstack_smtp_port: "25"
+bookstack_group_id: "100"
+bookstack_user_id: "99"

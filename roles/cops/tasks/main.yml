@@ -12,6 +12,8 @@
       loop:
         - path: "{{ cops_data_path }}"
         - path: "{{ cops_data_path }}/config"
+          owner: "{{ cops_user_id }}"
+          group: "{{ cops_group_id }}"
         - path: "{{ cops_data_path }}/config/config"
           owner: "{{ cops_user_id }}"
           group: "{{ cops_group_id }}"

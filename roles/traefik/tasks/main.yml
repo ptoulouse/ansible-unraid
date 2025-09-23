@@ -69,6 +69,8 @@
           - "443:443"
         networks:
           - name: "{{ traefik_network }}"
+        etc_hosts:
+          host.docker.internal: host-gateway
         volumes:
           - "{{ traefik_data_path }}/config:/config"
           - "/var/run/docker.sock:/var/run/docker.sock:ro"
