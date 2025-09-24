@@ -1,0 +1,33 @@
+---
+- name: Start Restic Rest Server
+  when: restic_server_enabled is true
+  block:
+    - name: Create Restic Rest Server Docker Container
+      community.docker.docker_container:
+        name: "{{ restic_server_container_name }}"
+        image: "restic/rest-server:{{ restic_server_image_version }}"
+        pull: true
+        restart_policy: "{{ restic_server_restart_policy }}"
+        published_ports:
+          - "{{ restic_server_port }}:8000"
+        volumes:
+          - "{{ backup_path }}/restic:/data"
+          - "/usr/share/zoneinfo:/usr/share/zoneinfo:ro"
+        env:
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Base Services"
+          net.unraid.docker.icon: "{{ restic_server_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+        user: "{{ restic_server_user_id }}:{{ restic_server_group_id }}"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Restic Rest Server
+  when: restic_server_enabled is false
+  block:
+    - name: Stop Restic Rest Server
+      community.docker.docker_container:
+        name: "{{ restic_server_container_name }}"
+        state: absent

@@ -20,6 +20,10 @@
       tags: authelia
     - role: traefik
       tags: traefik
+    - role: restic_server
+      tags: restic_server
+    - role: watchtower
+      tags: watchtower
 
     # Monitoring services.
     - role: dozzle
@@ -52,6 +56,12 @@
       tags: musicip
     - role: lms
       tags: lms
+
+    # AI services.
+    - role: ollama
+      tags: ollama
+    - role: open_webui
+      tags: open_webui
 
     # Other services.
     - role: freshrss

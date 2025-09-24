@@ -1,0 +1,44 @@
+---
+- name: Start Ollama
+  when: ollama_enabled is true
+  block:
+    - name: Create Ollama directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ ollama_data_path }}"
+        - path: "{{ ollama_data_path }}/config"
+
+    - name: Create Ollama Docker Container
+      community.docker.docker_container:
+        name: "{{ ollama_container_name }}"
+        image: "ollama/ollama:{{ ollama_image_version }}"
+        pull: true
+        restart_policy: "{{ ollama_restart_policy }}"
+        networks:
+          - name: "{{ ollama_network }}"
+        volumes:
+          - "{{ ollama_data_path }}/config:/root/.ollama"
+        labels:
+          folder.view2: "AI"
+          net.unraid.docker.icon: "{{ ollama_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+        security_opts:
+          - no-new-privileges:true
+        device_requests:
+          - capabilities:
+              - gpu
+            count: -1
+
+- name: Stop Ollama
+  when: ollama_enabled is false
+  block:
+    - name: Stop Ollama
+      community.docker.docker_container:
+        name: "{{ ollama_container_name }}"
+        state: absent

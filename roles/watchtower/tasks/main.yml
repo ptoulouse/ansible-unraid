@@ -1,0 +1,52 @@
+---
+- name: Start Watchtower
+  when: watchtower_enabled is true
+  block:
+    - name: Check that required variables are defined.
+      ansible.builtin.assert:
+        that:
+          - item | length > 0
+        fail_msg: "{{ item }} is not defined."
+      loop:
+        - watchtower_api_token
+
+    - name: Create Watchtower Docker Container
+      community.docker.docker_container:
+        name: "{{ watchtower_container_name }}"
+        image: "containrrr/watchtower:{{ watchtower_image_version }}"
+        pull: true
+        restart_policy: "{{ watchtower_restart_policy }}"
+        published_ports:
+          - "{{ watchtower_port }}:8080"
+        networks:
+          - name: "{{ mail_relay_network }}"
+        volumes:
+          - "/var/run/docker.sock:/var/run/docker.sock"
+        env:
+          TZ: "{{ timezone }}"
+          WATCHTOWER_CLEANUP: "true"
+          WATCHTOWER_HTTP_API_METRICS: "true"
+          WATCHTOWER_HTTP_API_TOKEN: "{{ watchtower_api_token }}"
+          WATCHTOWER_INCLUDE_STOPPED: "true"
+          WATCHTOWER_NOTIFICATIONS: email
+          WATCHTOWER_NOTIFICATION_EMAIL_FROM: "{{ watchtower_smtp_address_from }}"
+          WATCHTOWER_NOTIFICATION_EMAIL_TO: "${ADMIN_EMAIL}"
+          WATCHTOWER_NOTIFICATION_EMAIL_SERVER: "{{ watchtower_smtp_host }}"
+          WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: "{{ watchtower_smtp_port }}"
+          WATCHTOWER_NOTIFICATION_EMAIL_SUBJECTTAG: "{{ watchtower_email_subject }}"
+          WATCHTOWER_SCHEDULE: "{{ watchtower_schedule }}"
+        labels:
+          folder.view2: "Base Services"
+          net.unraid.docker.icon: "{{ watchtower_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop Watchtower
+  when: watchtower_enabled is false
+  block:
+    - name: Stop Watchtower
+      community.docker.docker_container:
+        name: "{{ watchtower_container_name }}"
+        state: absent

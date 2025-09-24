@@ -2,7 +2,7 @@
 # Enable or disable the application.
 musicip_enabled: false
 
-# Lyrion ocker container settings.
+# MusicIP docker container settings.
 musicip_container_name: "musicip"
 musicip_data_path: "{{ docker_data_path }}/{{ musicip_container_name }}"
 musicip_domain: "{{ domain_name }}"

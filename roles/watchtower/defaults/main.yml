@@ -1,0 +1,16 @@
+---
+# Enable or disable the application.
+watchtower_enabled: false
+
+# Watchtower Docker container settings.
+watchtower_api_token: ""
+watchtower_container_name: "watchtower"
+watchtower_email_subject: "{{ server_name }}"
+watchtower_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/watchtower.png
+watchtower_image_version: "latest"
+watchtower_port: "8080"
+watchtower_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+watchtower_schedule: "0 0 6 * * *"
+watchtower_smtp_host: "{{ mail_relay_container_name }}"
+watchtower_smtp_port: "25"
+watchtower_smtp_address_from: "Watchtower {{ server_name }} <{{ sender_email }}>"

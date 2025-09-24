@@ -1,0 +1,14 @@
+---
+# Enable or disable the application.
+open_webui_enabled: false
+
+# Open-WebUI docker container settings.
+open_webui_container_name: "webui"
+open_webui_data_path: "{{ docker_data_path }}/{{ open_webui_container_name }}"
+open_webui_domain: "{{ domain_name }}"
+open_webui_hostname: "webui"
+open_webui_icon_url: https://raw.githubusercontent.com/webui/webui/main/static/favicon.png
+open_webui_image_version: "main"
+open_webui_ollama_url: "http://{{ ollama_container_name }}:11434"
+open_webui_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+open_webui_secret_key: ""

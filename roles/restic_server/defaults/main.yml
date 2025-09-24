@@ -1,0 +1,12 @@
+---
+# Enable or disable the application.
+restic_server_enabled: false
+
+# Restic Rest Server Docker container settings.
+restic_server_container_name: "rest-server"
+restic_server_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/restic-rest-server.png
+restic_server_image_version: "latest"
+restic_server_port: "8000"
+restic_server_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+restic_server_group_id: "100"
+restic_server_user_id: "99"

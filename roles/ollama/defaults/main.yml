@@ -1,0 +1,11 @@
+---
+# Enable or disable the application.
+ollama_enabled: false
+
+# Ollama docker container settings.
+ollama_container_name: "ollama"
+ollama_data_path: "{{ docker_data_path }}/{{ ollama_container_name }}"
+ollama_icon_url: https://github.com/ptoulouse/ansible-unraid/raw/main/icons/ollama.png
+ollama_image_version: "latest"
+ollama_network: "ollama"
+ollama_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
