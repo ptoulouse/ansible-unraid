@@ -51,6 +51,10 @@
     - role: bookstack
       tags: bookstack
 
+    # Nextcloud
+    - role: nextcloud
+      tags: nextcloud
+
     # Music services.
     - role: musicip
       tags: musicip

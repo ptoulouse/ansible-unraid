@@ -1,0 +1,15 @@
+---
+# Enable or disable the application.
+nextcloud_enabled: false
+
+# Nextcloud AIO docker container settings.
+nextcloud_additional_apks: "imagemagick"
+nextcloud_aio_port: "8080"
+nextcloud_aio_url: "https://192.168.121.2:{{ nextcloud_aio_port }}"
+nextcloud_apache_port: "11000"
+nextcloud_apache_ip_binding: "0.0.0.0"
+nextcloud_datadir: "{{ nextcloud_path }}/data"
+nextcloud_hostname: "nextcloud"
+nextcloud_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/nextcloud.png
+nextcloud_image_version: "latest"
+nextcloud_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"

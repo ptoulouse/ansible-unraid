@@ -26,6 +26,7 @@ backup_path: "/mnt/user/backup"
 books_path: "{{ media_path }}/libraries/books"
 media_path: "/mnt/user/media"
 music_path: "{{ media_path }}/libraries/music"
+nextcloud_path: "/mnt/user/nextcloud"
 photos_path: "/mnt/user/photos"
 
 # Path where Python virtual environment will be created.
@@ -58,6 +59,7 @@ lldap_enabled: true
 lms_enabled: true
 mail_relay_enabled: true
 musicip_enabled: true
+nextcloud_enabled: true
 ollama_enabled: true
 open_webui_enabled: true
 plex_enabled: true
@@ -162,6 +164,10 @@ mail_relay_smtp_port: "587"
 mail_relay_smtp_username: "{{ vault_mail_relay_smtp_username }}"
 mail_relay_smtp_password: "{{ vault_mail_relay_smtp_password }}"
 
+# Nextcloud settings.
+nextcloud_additional_apks: "imagemagick ocrmypdf tesseract-ocr-data-fra tesseract-ocr-data-eng"
+nextcloud_aio_port: "8083"
+
 # Open-WebUI settings.
 open_webui_secret_key: "{{ vault_open_webui_secret_key }}"
 
@@ -184,5 +190,4 @@ watchtower_api_token: "{{ vault_watchtower_api_token }}"
 watchtower_port: "8082"
 
 ###### TEMPORARY ######
-nextcloud_hostname: "nextcloud"
 homepage_hostname: "homepage"

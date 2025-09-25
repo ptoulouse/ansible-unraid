@@ -1,0 +1,48 @@
+---
+- name: Start Nextcloud AIO
+  when: nextcloud_enabled is true
+  block:
+    - name: Ensure that Nextcloud AIO volume exist
+      community.docker.docker_volume:
+        name: nextcloud_aio_mastercontainer
+        state: present
+
+    - name: Ensure that Nextcloud AIO network exist
+      community.docker.docker_network:
+        name: nextcloud-aio
+        state: present
+
+    - name: Create Nextcloud AIO Docker Container
+      community.docker.docker_container:
+        name: "nextcloud-aio-mastercontainer"
+        image: "nextcloud/all-in-one:{{ nextcloud_image_version }}"
+        pull: true
+        restart_policy: "{{ nextcloud_restart_policy }}"
+        init: true
+        published_ports:
+          - "{{ nextcloud_aio_port }}:8080"
+        networks:
+          - name: "nextcloud-aio"
+        volumes:
+          - "nextcloud_aio_mastercontainer:/mnt/docker-aio-config"
+          - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        env:
+          APACHE_PORT: "{{ nextcloud_apache_port }}"
+          APACHE_IP_BINDING: "{{ nextcloud_apache_ip_binding }}"
+          NEXTCLOUD_DATADIR: "{{ nextcloud_datadir }}"
+          NEXTCLOUD_ENABLE_DRI_DEVICE: "true"
+          NEXTCLOUD_ADDITIONAL_APKS: "{{ nextcloud_additional_apks }}"
+        labels:
+          folder.view2: "Nextcloud"
+          net.unraid.docker.icon: "{{ nextcloud_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "{{ nextcloud_aio_url }}"
+
+- name: Stop Nextcloud AIO
+  when: nextcloud_enabled is false
+  block:
+    - name: Stop Nextcloud
+      community.docker.docker_container:
+        name: "{{ nextcloud_container_name }}"
+        state: absent
