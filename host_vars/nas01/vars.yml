@@ -65,6 +65,7 @@ ollama_enabled: true
 open_webui_enabled: true
 plex_enabled: true
 restic_server_enabled: true
+sabnzbd_enabled: true
 scrutiny_enabled: true
 tautulli_enabled: true
 traefik_enabled: true

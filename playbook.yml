@@ -70,6 +70,8 @@
     # Downloaders services.
     - role: deluge
       tags: deluge
+    - role: sabnzbd
+      tags: sabnzbd
 
     # Other services.
     - role: freshrss

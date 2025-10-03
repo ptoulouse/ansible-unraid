@@ -1,0 +1,55 @@
+---
+- name: Start SABnzbd
+  when: sabnzbd_enabled is true
+  block:
+    - name: Create SABnzbd directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ sabnzbd_data_path }}"
+        - path: "{{ sabnzbd_data_path }}/config"
+          owner: "{{ sabnzbd_user_id }}"
+          group: "{{ sabnzbd_group_id }}"
+
+    - name: Create SABnzbd Docker Container
+      community.docker.docker_container:
+        name: "{{ sabnzbd_container_name }}"
+        image: "lscr.io/linuxserver/sabnzbd:{{ sabnzbd_image_version }}"
+        pull: true
+        restart_policy: "{{ sabnzbd_restart_policy }}"
+        networks:
+          - name: "{{ traefik_network }}"
+        volumes:
+          - "{{ sabnzbd_data_path }}/config:/config"
+          - "{{ media_path }}/usenet:{{ media_path }}/usenet"
+
+        env:
+          PGID: "{{ sabnzbd_group_id }}"
+          PUID: "{{ sabnzbd_user_id }}"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Downloaders"
+          net.unraid.docker.icon: "{{ sabnzbd_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ sabnzbd_hostname }}.{{ sabnzbd_domain }}"
+          traefik.enable: "true"
+          traefik.http.routers.sabnzbd.entrypoints: "https"
+          traefik.http.routers.sabnzbd.middlewares: "auth-chain@file"
+          traefik.http.routers.sabnzbd.rule: "Host(`{{ sabnzbd_hostname }}.{{ sabnzbd_domain }}`)"
+          traefik.http.routers.sabnzbd.service: "sabnzbd"
+          traefik.http.services.sabnzbd.loadbalancer.server.port: "8080"
+        security_opts:
+          - no-new-privileges:true
+
+- name: Stop SABnzbd
+  when: sabnzbd_enabled is false
+  block:
+    - name: Stop SABnzbd
+      community.docker.docker_container:
+        name: "{{ sabnzbd_container_name }}"
+        state: absent

@@ -1,0 +1,14 @@
+---
+# Enable or disable the application.
+sabnzbd_enabled: false
+
+# Sabnzbd Docker container settings.
+sabnzbd_container_name: "sabnzbd"
+sabnzbd_data_path: "{{ docker_data_path }}/{{ sabnzbd_container_name }}"
+sabnzbd_domain: "{{ domain_name }}"
+sabnzbd_hostname: "sabnzbd"
+sabnzbd_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/sabnzbd.png
+sabnzbd_image_version: "latest"
+sabnzbd_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+sabnzbd_group_id: "100"
+sabnzbd_user_id: "99"
