@@ -67,6 +67,10 @@
     - role: open_webui
       tags: open_webui
 
+    # Downloaders services.
+    - role: deluge
+      tags: deluge
+
     # Other services.
     - role: freshrss
       tags: freshrss

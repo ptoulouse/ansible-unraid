@@ -51,6 +51,7 @@ bookstack_enabled: true
 calibre_web_enabled: true
 cloudflare_ddns_enabled: true
 cops_enabled: true
+deluge_enabled: true
 dozzle_enabled: true
 freshrss_enabled: true
 glances_enabled: true

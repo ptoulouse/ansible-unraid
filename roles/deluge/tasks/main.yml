@@ -1,0 +1,70 @@
+---
+- name: Start Deluge
+  when: deluge_enabled is true
+  block:
+    - name: Create Deluge directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - path: "{{ deluge_data_path }}"
+        - path: "{{ deluge_data_path }}/config"
+          owner: "{{ deluge_user_id }}"
+          group: "{{ deluge_group_id }}"
+
+    - name: Create Deluge Docker Container
+      community.docker.docker_container:
+        name: "{{ deluge_container_name }}"
+        image: "binhex/arch-delugevpn:{{ deluge_image_version }}"
+        pull: true
+        restart_policy: "{{ deluge_restart_policy }}"
+        published_ports:
+          - "{{ deluge_privoxy_port }}:8118"
+        networks:
+          - name: "{{ traefik_network }}"
+        volumes:
+          - "{{ media_path }}/torrents:{{ media_path }}/torrents"
+          - "{{ deluge_data_path }}/config:/config"
+        env:
+          DELUGE_DAEMON_LOG_LEVEL: info
+          DELUGE_ENABLE_WEBUI_PASSWORD: "no"
+          DELUGE_WEB_LOG_LEVEL: info
+          ENABLE_PRIVOXY: "yes"
+          LAN_NETWORK: "192.168.121.0/24,172.16.0.0/16"
+          NAME_SERVERS: "1.0.0.1,1.1.1.1"
+          PGID: "{{ deluge_group_id }}"
+          PUID: "{{ deluge_user_id }}"
+          VPN_CLIENT: "wireguard"
+          VPN_ENABLED: "yes"
+          VPN_PASS: "aaaaa"
+          VPN_PROV: "protonvpn"
+          VPN_USER: "aaaaa+pmp"
+          TZ: "{{ timezone }}"
+        labels:
+          folder.view2: "Downloaders"
+          net.unraid.docker.icon: "{{ deluge_icon_url }}"
+          net.unraid.docker.managed: "dockerman"
+          net.unraid.docker.shell: bash
+          net.unraid.docker.webui: "https://{{ deluge_hostname }}.{{ deluge_domain }}"
+          traefik.enable: "true"
+          traefik.http.routers.deluge.entrypoints: "https"
+          traefik.http.routers.deluge.middlewares: "auth-chain@file"
+          traefik.http.routers.deluge.rule: "Host(`{{ deluge_hostname }}.{{ deluge_domain }}`)"
+          traefik.http.routers.deluge.service: "deluge"
+          traefik.http.services.deluge.loadbalancer.server.port: "8112"
+        privileged: true
+        security_opts:
+          - no-new-privileges:true
+        sysctls:
+          net.ipv4.conf.all.src_valid_mark: "1"
+
+- name: Stop Deluge
+  when: deluge_enabled is false
+  block:
+    - name: Stop Deluge
+      community.docker.docker_container:
+        name: "{{ deluge_container_name }}"
+        state: absent

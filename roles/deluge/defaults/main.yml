@@ -1,0 +1,15 @@
+---
+# Enable or disable the application.
+deluge_enabled: false
+
+# Deluge Docker container settings.
+deluge_container_name: "deluge"
+deluge_data_path: "{{ docker_data_path }}/{{ deluge_container_name }}"
+deluge_domain: "{{ domain_name }}"
+deluge_hostname: "deluge"
+deluge_icon_url: https://github.com/walkxcode/Dashboard-Icons/raw/main/png/deluge.png
+deluge_image_version: "latest"
+deluge_privoxy_port: "8118"
+deluge_restart_policy: "{{ docker_restart_policy | default('unless-stopped') }}"
+deluge_group_id: "100"
+deluge_user_id: "99"
