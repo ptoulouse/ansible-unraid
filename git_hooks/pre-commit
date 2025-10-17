@@ -1,0 +1,28 @@
+#!/bin/bash
+
+VAULT_FILE="group_vars/all/vault.yml"
+
+# Check if the file is staged for commit
+if git diff --cached --name-only | grep -q "^${VAULT_FILE}$"; then
+    echo "Checking vault file encryption..."
+    
+    # Check the working directory version
+    if [ -f "${VAULT_FILE}" ]; then
+        if ! head -n 1 "${VAULT_FILE}" | grep -q '^\$ANSIBLE_VAULT;'; then
+            echo "[38;5;208mERROR: Working directory ${VAULT_FILE} is not encrypted![0m"
+            echo "[38;5;208mRun 'make encrypt' and try again.[0m"
+            exit 1
+        fi
+    fi
+    
+    # Check the staged version
+    if ! git show ":${VAULT_FILE}" | head -n 1 | grep -q '^\$ANSIBLE_VAULT;'; then
+        echo "[38;5;208mERROR: Staged ${VAULT_FILE} is not encrypted![0m"
+        echo "[38;5;208mRun 'make encrypt', then 'git add ${VAULT_FILE}' and try again.[0m"
+        exit 1
+    fi
+    
+    echo "[38;5;108mVault Encrypted. Safe to commit.[0m"
+fi
+
+exit 0
