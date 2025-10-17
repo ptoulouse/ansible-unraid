@@ -1,6 +1,6 @@
 ---
 # Path where to install the virtual environment.
-python_venv_dir: "{{ appdata_dir }}/venv"
+python_venv_dir: "/mn/user/appdata/venv"
 
 # Python packages to install in the virtual environment.
 python_venv_packages: []
