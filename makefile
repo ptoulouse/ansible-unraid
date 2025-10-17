@@ -1,7 +1,7 @@
 export PATH := $(PWD)/venv/bin:$(PATH)
 
 setup:
-	python3 -m venv venv
+	python3 -m venv .venv
 	pip3 install -r pip_requirements.txt
 	ansible-galaxy install -r galaxy_requirements.yml
 

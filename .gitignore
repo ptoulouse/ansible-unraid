@@ -2,5 +2,5 @@
 .vaultpass
 galaxy_roles
 galaxy_collections
-venv
+.venv
 ansible-unraid.code-workspace
