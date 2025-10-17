@@ -1,0 +1,14 @@
+---
+# Create Python virtual environment
+- name: Create Python virtual environment
+  ansible.builtin.command:
+    cmd: /usr/bin/python3 -m venv "{{ python_venv_dir }}"
+  args:
+    creates: "{{ python_venv_dir }}/bin/activate" # Prevents re-creation if already exists
+
+# Install required Python packages in the virtual environment
+- name: Install required Python packages
+  ansible.builtin.pip:
+    name: "{{ python_venv_packages }}"
+    virtualenv: "{{ python_venv_dir }}"
+  when: python_venv_packages | length > 0
